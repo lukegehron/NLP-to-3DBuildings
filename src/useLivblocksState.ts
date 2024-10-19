@@ -1,4 +1,9 @@
-import { useMutation, useStorage } from "@liveblocks/react";
+import {
+  useMutation,
+  useOthersMapped,
+  useStorage,
+  useUpdateMyPresence,
+} from "@liveblocks/react";
 import isEqual from "lodash.isequal";
 import { useState } from "react";
 
@@ -94,25 +99,10 @@ export const useLiveblocksState = ({ path: _path }: { path?: string[] }) => {
       }
 
       if (object) {
-        // console.log(object.get("uuid"));
         Object.entries(partialObject).forEach(([key, value]) => {
           const currVal = object.get(key);
-          // console.log("Updated?", {
-          //   key,
-          //   currVal,
-          //   isEqual: isEqual(currVal, value),
-          //   value,
-          //   uuid: object.get("uuid"),
-          // });
           if (!isEqual(currVal, value)) {
             if (key === "matrix" && isValidMatrix(value)) {
-              console.log("Updated", {
-                key,
-                currVal,
-                isEqual: isEqual(currVal, value),
-                value,
-                uuid: object.get("uuid"),
-              });
               object.set(key, value);
             }
           }
@@ -124,7 +114,37 @@ export const useLiveblocksState = ({ path: _path }: { path?: string[] }) => {
     [path]
   );
 
-  return { state, setState, setPath };
+  const ephemeralTransformMap = useOthersMapped((others) => {
+    if (
+      others.presence.selected &&
+      Array.isArray(others.presence.selected) &&
+      others.presence.selected.length === 0
+    ) {
+      return {};
+    }
+
+    const sel =
+      !others.presence.selected ||
+      !Array.isArray(others.presence.selected) ||
+      others.presence.selected.length === 0
+        ? null
+        : others.presence.selected[others.presence.selected.length - 1];
+
+    return {
+      sel,
+      selTransform: others.presence.selectedTransform,
+    };
+  });
+
+  const updateMyPresence = useUpdateMyPresence();
+
+  return {
+    state,
+    setState,
+    setPath,
+    ephemeralTransformMap,
+    updateMyPresence,
+  };
 };
 
 export const isValidMatrix = (matrix: any) => {

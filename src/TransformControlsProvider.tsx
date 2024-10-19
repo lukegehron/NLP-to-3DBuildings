@@ -28,7 +28,9 @@ interface TransformControlProviderProps {
 export const TransformControlsProvider = forwardRef(
   ({ children }: TransformControlProviderProps, ref): React.ReactElement => {
     const { gl, scene } = useThree();
-    const { setState, setPath } = useLiveblocksState({ path: undefined });
+    const { setState, setPath, updateMyPresence } = useLiveblocksState({
+      path: undefined,
+    });
 
     const [isTransforming, setIsTransforming] = useState(false);
     const [selectedObject, _setSelectedObject] = useState<Object3D | undefined>(
@@ -42,14 +44,23 @@ export const TransformControlsProvider = forwardRef(
     const setSelectedObject = useCallback((path?: string[]) => {
       if (!path) {
         _setSelectedObject(undefined);
+        updateMyPresence({ selected: [] });
         return;
       }
 
       setPath(path);
 
       const uuid = path[path.length - 1];
-      const selObject = scene.getObjectByProperty("uuid", uuid);
-      _setSelectedObject(selObject);
+      const selectedObject = scene.getObjectByProperty("uuid", uuid);
+
+      if (!selectedObject) {
+        return;
+      }
+
+      _setSelectedObject(selectedObject);
+
+      const matrix = selectedObject.matrix.toArray();
+      updateMyPresence({ selected: path, selectedTransform: matrix });
     }, []);
 
     const orbitControlsRef = useRef(null);
@@ -62,9 +73,31 @@ export const TransformControlsProvider = forwardRef(
       }
     }, [isTransforming]);
 
+    const intervalRef = useRef<number | undefined>(undefined);
+
+    useEffect(() => {
+      if (isTransforming && selectedObject) {
+        const update = () => {
+          const matrix = selectedObject.matrix.toArray();
+          updateMyPresence({ selectedTransform: matrix });
+        };
+
+        // 120 fps, good performace control
+        intervalRef.current = setInterval(update, 1000 / 120);
+      } else if (typeof intervalRef.current === "number") {
+        updateMyPresence({ selectedTransform: null });
+        clearInterval(intervalRef.current);
+      }
+
+      return () => {
+        if (typeof intervalRef.current === "number") {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }, [isTransforming, selectedObject]);
+
     const onTransformEnd = useCallback(() => {
-      const matrix = selectedObject?.matrix.clone().toArray();
-      console.log({ matrix });
+      const matrix = selectedObject?.matrix.toArray();
       setState({ matrix });
     }, [selectedObject]);
 

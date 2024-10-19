@@ -23,10 +23,23 @@ import {
   useTransformControlsProvider,
 } from "./TransformControlsProvider";
 import { isValidMatrix, useLiveblocksState } from "./useLivblocksState";
+import { funName, stringToColor } from "./nameGenerator";
 
 function BoxMesh({ path }: { path?: string[] }) {
-  const { state } = useLiveblocksState({ path });
+  const { state, ephemeralTransformMap } = useLiveblocksState({ path });
   const { setSelectedObject } = useTransformControlsProvider();
+
+  const selTransform = useMemo(() => {
+    if (!path) {
+      return null;
+    }
+    const uuid = path[path.length - 1];
+    const item = ephemeralTransformMap.find(([_k, val]) => val.sel === uuid);
+    if (!item) {
+      return null;
+    }
+    return item[1].selTransform;
+  }, [path, ephemeralTransformMap]);
 
   const { geometry, material, object } = useMemo(() => {
     if (!state) {
@@ -56,7 +69,7 @@ function BoxMesh({ path }: { path?: string[] }) {
     >(null);
 
   const [position, rotation, scale] = React.useMemo(() => {
-    const _matrix = object?.["matrix"];
+    const _matrix = selTransform ?? object?.["matrix"];
     const matrix = new Matrix4();
     if (matrix && isValidMatrix(_matrix)) {
       matrix.fromArray(_matrix);
@@ -90,8 +103,7 @@ function BoxMesh({ path }: { path?: string[] }) {
       // matrix is auto updated by transform controls
       // matrixAutoUpdate={false}
       // matrix={matrix}
-      onClick={(e) => {
-        console.log({ uuid: e.eventObject.uuid, path });
+      onClick={() => {
         setSelectedObject(path);
       }}
     >
@@ -189,6 +201,9 @@ const Scene = () => {
 function App() {
   const transformControlRef = useRef();
 
+  const name = funName();
+  const color = stringToColor(name);
+
   return (
     <LiveblocksProvider
       publicApiKey={
@@ -198,8 +213,10 @@ function App() {
       <RoomProvider
         id="my-room"
         initialPresence={{
-          name: "Nick",
-          color: "red",
+          name,
+          color,
+          selected: [],
+          selectedTransform: new Matrix4().toArray(),
         }}
         initialStorage={{
           geometries: {},

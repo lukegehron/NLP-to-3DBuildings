@@ -6,6 +6,25 @@ declare global {
     Presence: {
       name: string;
       color: string;
+      selected: string[];
+      selectedTransform: [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+      ];
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
