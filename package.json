@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@liveblocks/client": "^2.9.1",
+    "@liveblocks/react": "^2.9.1",
     "@react-three/drei": "^9.114.4",
     "@react-three/fiber": "^8.17.10",
+    "lodash.isequal": "^4.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.169.0"
@@ -19,6 +22,7 @@
   "devDependencies": {
     "@eslint/js": "^9.11.1",
     "@react-three/eslint-plugin": "^0.1.1",
+    "@types/lodash.isequal": "^4.5.8",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",

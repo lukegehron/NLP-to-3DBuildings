@@ -1,96 +1,239 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Canvas, MeshProps, useThree } from "@react-three/fiber";
+import React, { useRef, useState, useMemo } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
 import {
-  TransformControls,
-  OrbitControls,
-  OrthographicCamera,
-  PerspectiveCamera,
-} from "@react-three/drei";
-import { Object3D, Object3DEventMap } from "three";
+  BufferGeometry,
+  Euler,
+  Material,
+  Matrix4,
+  Mesh,
+  NormalBufferAttributes,
+  Object3DEventMap,
+  Quaternion,
+  Vector3,
+} from "three";
+import {
+  ClientSideSuspense,
+  LiveblocksProvider,
+  RoomProvider,
+  useStorage,
+} from "@liveblocks/react";
+import {
+  TransformControlsProvider,
+  useTransformControlsProvider,
+} from "./TransformControlsProvider";
+import { isValidMatrix, useLiveblocksState } from "./useLivblocksState";
 
-function Box({
-  color,
-  ...props
-}: {
-  color: string;
-} & MeshProps) {
+function BoxMesh({ path }: { path?: string[] }) {
+  const { state } = useLiveblocksState({ path });
+  const { setSelectedObject } = useTransformControlsProvider();
+
+  const { geometry, material, object } = useMemo(() => {
+    if (!state) {
+      return {
+        geometry: null,
+        material: null,
+        object: null,
+      };
+    }
+
+    const { geometry, material, object } = state;
+
+    return {
+      geometry: Object.fromEntries(geometry.entries()),
+      material: Object.fromEntries(material.entries()),
+      object: Object.fromEntries(object.entries()),
+    };
+  }, [state]);
+
+  const meshRef =
+    useRef<
+      Mesh<
+        BufferGeometry<NormalBufferAttributes>,
+        Material | Material[],
+        Object3DEventMap
+      >
+    >(null);
+
+  const [position, rotation, scale] = React.useMemo(() => {
+    const _matrix = object?.["matrix"];
+    const matrix = new Matrix4();
+    if (matrix && isValidMatrix(_matrix)) {
+      matrix.fromArray(_matrix);
+    }
+
+    let p = new Vector3();
+    let r = new Quaternion();
+    let s = new Vector3();
+    matrix.decompose(p, r, s);
+
+    let euler = new Euler().setFromQuaternion(r);
+
+    return [p, euler, s];
+  }, [object]);
+
+  if (!state) {
+    return null;
+  }
+
   return (
-    <mesh {...props}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={color} />
+    <mesh
+      // important to keep three js scene uuid in line with stored uuid in liveblocks
+      uuid={object?.uuid}
+      // onUpdate function is called every time the mesh matrix is updated
+      // onUpdate={(self) => { }}
+      ref={meshRef}
+      up={object?.up}
+      position={position}
+      rotation={rotation}
+      scale={scale}
+      // matrix is auto updated by transform controls
+      // matrixAutoUpdate={false}
+      // matrix={matrix}
+      onClick={(e) => {
+        console.log({ uuid: e.eventObject.uuid, path });
+        setSelectedObject(path);
+      }}
+    >
+      <boxGeometry {...geometry} />
+      <meshStandardMaterial {...material} />
     </mesh>
   );
 }
 
-function Scene() {
-  const [selectedObject, setSelectedObject] =
-    useState<Object3D<Object3DEventMap>>();
-  const [isTransforming, setIsTransforming] = useState(false);
-  const orbitControlsRef = useRef(null);
-  const { camera, gl } = useThree();
-  const ref = useRef(null);
+function ObjectScene({ path }: { path?: string[] }) {
+  const state = useStorage((root) => {
+    const rootObject = root.object;
 
-  useEffect(() => {
-    if (orbitControlsRef.current) {
-      const controls = orbitControlsRef.current;
-      // @ts-expect-error
-      controls.enabled = !isTransforming;
+    if (!rootObject) {
+      return null;
     }
-  }, [isTransforming]);
 
-  const [isOrtho, setIsOrtho] = useState(false);
+    let object = null;
+
+    if (!path) {
+      object = rootObject;
+    } else if (path) {
+      // @ts-expect-error
+      let children = rootObject.get("children");
+
+      for (let key of path) {
+        if (!children) {
+          break;
+        }
+        const child = children.get(key);
+        if (!child) {
+          break;
+        }
+
+        if (child.get("uuid") === path[path.length - 1]) {
+          object = child;
+        } else {
+          children = child.get("children");
+        }
+      }
+    }
+
+    if (!object) {
+      return null;
+    }
+
+    return {
+      type: object.get("type"),
+      children: object.get("children"),
+    };
+  });
+
+  if (!state) {
+    return null;
+  }
+
+  const { children, type } = state;
+
+  switch (type) {
+    case "Mesh": {
+      return <BoxMesh key={path?.join(".")} path={path} />;
+    }
+    default: {
+      return (
+        <>
+          {children &&
+            Array.from(children, ([key]) => {
+              return (
+                <ObjectScene key={key} path={path ? [...path, key] : [key]} />
+              );
+            })}
+        </>
+      );
+    }
+  }
+}
+
+const Scene = () => {
+  const [isOrtho, _setIsOrtho] = useState(true);
 
   return (
     <>
+      <ambientLight intensity={0.75} color={0xffffff} />
+      <pointLight position={[10, 10, 10]} />
+      <ObjectScene />
       {isOrtho ? (
         <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={50} />
       ) : (
         <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={75} />
       )}
-      <ambientLight intensity={0.75} color={0xffffff} />
-      <pointLight
-        position={[10, 10, 10]}
-        onClick={(e) => setSelectedObject(e.eventObject)}
-      />
-      <Box
-        ref={ref}
-        position={[-1.2, 0, 0]}
-        color="red"
-        onClick={(e) => setSelectedObject(e.eventObject)}
-      />
-      <Box
-        position={[1.2, 0, 0]}
-        color="blue"
-        onClick={(e) => setSelectedObject(e.eventObject)}
-      />
-      {selectedObject && (
-        <TransformControls
-          object={selectedObject}
-          onMouseDown={() => setIsTransforming(true)}
-          onMouseUp={() => setIsTransforming(false)}
-        />
-      )}
-
-      {/* @ts-expect-error */}
-      <OrbitControls ref={orbitControlsRef} args={[undefined, gl.domElement]} />
     </>
   );
-}
+};
 
 function App() {
+  const transformControlRef = useRef();
+
   return (
-    <Canvas
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "block",
-        position: "absolute",
-        top: 0,
-        left: 0,
-      }}
+    <LiveblocksProvider
+      publicApiKey={
+        "pk_dev_htKIDdGmC1jqqOdbfluugd6BlHq-qrzbT5z45Mhmn7Xq-85gv_BrSlgizxlTTyDt"
+      }
     >
-      <Scene />
-    </Canvas>
+      <RoomProvider
+        id="my-room"
+        initialPresence={{
+          name: "Nick",
+          color: "red",
+        }}
+        initialStorage={{
+          geometries: {},
+          materials: {},
+          object: {},
+          metadata: {
+            generator: "threejs",
+            type: "scene",
+            version: 1,
+          },
+        }}
+      >
+        <ClientSideSuspense fallback={<div>Loading…</div>}>
+          <Canvas
+            style={{
+              width: "100vw",
+              height: "100vh",
+              display: "block",
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
+            onPointerMissed={() => {
+              // @ts-expect-error
+              transformControlRef.current?.deselect();
+            }}
+          >
+            <TransformControlsProvider ref={transformControlRef}>
+              <Scene />
+            </TransformControlsProvider>
+          </Canvas>
+        </ClientSideSuspense>
+      </RoomProvider>
+    </LiveblocksProvider>
   );
 }
 
