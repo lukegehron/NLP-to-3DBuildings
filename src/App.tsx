@@ -16,30 +16,22 @@ import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
+  useOthersMapped,
   useStorage,
 } from "@liveblocks/react";
 import {
   TransformControlsProvider,
   useTransformControlsProvider,
-} from "./TransformControlsProvider";
-import { isValidMatrix, useLiveblocksState } from "./useLivblocksState";
+} from "./hooks/TransformControlsProvider";
+import { useLiveblocksState } from "./hooks/useLivblocksState";
 import { funName, stringToColor } from "./nameGenerator";
+import { Outlines } from "./OutlinedObject";
+import { useTransformState } from "./hooks/useTransformState";
 
 function BoxMesh({ path }: { path?: string[] }) {
-  const { state, ephemeralTransformMap } = useLiveblocksState({ path });
+  const { state } = useLiveblocksState({ path });
   const { setSelectedObject } = useTransformControlsProvider();
-
-  const selTransform = useMemo(() => {
-    if (!path) {
-      return null;
-    }
-    const uuid = path[path.length - 1];
-    const item = ephemeralTransformMap.find(([_k, val]) => val.sel === uuid);
-    if (!item) {
-      return null;
-    }
-    return item[1].selTransform;
-  }, [path, ephemeralTransformMap]);
+  const { position, rotation, scale } = useTransformState({ path });
 
   const { geometry, material, object } = useMemo(() => {
     if (!state) {
@@ -59,43 +51,12 @@ function BoxMesh({ path }: { path?: string[] }) {
     };
   }, [state]);
 
-  const meshRef =
-    useRef<
-      Mesh<
-        BufferGeometry<NormalBufferAttributes>,
-        Material | Material[],
-        Object3DEventMap
-      >
-    >(null);
-
-  const [position, rotation, scale] = React.useMemo(() => {
-    const _matrix = selTransform ?? object?.["matrix"];
-    const matrix = new Matrix4();
-    if (matrix && isValidMatrix(_matrix)) {
-      matrix.fromArray(_matrix);
-    }
-
-    let p = new Vector3();
-    let r = new Quaternion();
-    let s = new Vector3();
-    matrix.decompose(p, r, s);
-
-    let euler = new Euler().setFromQuaternion(r);
-
-    return [p, euler, s];
-  }, [object]);
-
-  if (!state) {
-    return null;
-  }
-
   return (
     <mesh
       // important to keep three js scene uuid in line with stored uuid in liveblocks
       uuid={object?.uuid}
       // onUpdate function is called every time the mesh matrix is updated
       // onUpdate={(self) => { }}
-      ref={meshRef}
       up={object?.up}
       position={position}
       rotation={rotation}
@@ -181,6 +142,42 @@ function ObjectScene({ path }: { path?: string[] }) {
   }
 }
 
+const PresenceOutlines = () => {
+  const presenceData = useOthersMapped((other) => ({
+    color: other.presence?.color,
+    selected: other.presence?.selected,
+  }));
+
+  return (
+    <>
+      {presenceData.map(([key, data]) => {
+        // @ts-expect-error
+        if (data.selected && data.selected.length > 0) {
+          // @ts-expect-error
+          const uuid = data.selected[data.selected.length - 1];
+          // validate data.selected
+          if (
+            !Array.isArray(data.selected) ||
+            data.selected.length === 0 ||
+            !data.selected.every((s) => typeof s === "string")
+          ) {
+            return null;
+          }
+          return (
+            <Outlines
+              key={key}
+              path={data.selected as string[]}
+              color={data.color as string}
+              thickness={10}
+            />
+          );
+        }
+        return null;
+      })}
+    </>
+  );
+};
+
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
 
@@ -189,6 +186,7 @@ const Scene = () => {
       <ambientLight intensity={0.75} color={0xffffff} />
       <pointLight position={[10, 10, 10]} />
       <ObjectScene />
+      <PresenceOutlines />
       {isOrtho ? (
         <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={50} />
       ) : (
