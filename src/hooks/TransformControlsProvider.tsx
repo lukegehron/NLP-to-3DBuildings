@@ -113,7 +113,6 @@ export const TransformControlsProvider = forwardRef(
             object={selectedObject}
             onMouseDown={() => setIsTransforming(true)}
             onMouseUp={() => {
-              console.log("mouse up");
               onTransformEnd();
               setIsTransforming(false);
             }}

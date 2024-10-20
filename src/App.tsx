@@ -16,6 +16,8 @@ import { useLiveblocksState } from "./hooks/useLivblocksState";
 import { funName, roomName, stringToColor } from "./utils/nameGenerator";
 import { useTransformState } from "./hooks/useTransformState";
 import { PresenceOutlines } from "./components/PresenceOutlines";
+import { CommandBarProvider } from "./components/ui/CommandBarContext";
+import { LiveMap } from "@liveblocks/client";
 
 function BoxMesh({ path }: { path?: string[] }) {
   const { state } = useLiveblocksState({ path });
@@ -40,6 +42,10 @@ function BoxMesh({ path }: { path?: string[] }) {
     };
   }, [state]);
 
+  if (!state) {
+    return <></>;
+  }
+
   return (
     <mesh
       // important to keep three js scene uuid in line with stored uuid in liveblocks
@@ -58,12 +64,12 @@ function BoxMesh({ path }: { path?: string[] }) {
       }}
     >
       <boxGeometry {...geometry} />
-      <meshStandardMaterial {...material} />
+      <meshBasicMaterial {...material} />
     </mesh>
   );
 }
 
-function ObjectScene({ path }: { path?: string[] }) {
+function ObjectRecursive({ path }: { path?: string[] }) {
   const state = useStorage((root) => {
     const rootObject = root.object;
 
@@ -76,13 +82,13 @@ function ObjectScene({ path }: { path?: string[] }) {
     if (!path) {
       object = rootObject;
     } else if (path) {
-      // @ts-expect-error
-      let children = rootObject.get("children");
+      let children = rootObject;
 
       for (let key of path) {
         if (!children) {
           break;
         }
+        // @ts-expect-error
         const child = children.get(key);
         if (!child) {
           break;
@@ -110,11 +116,27 @@ function ObjectScene({ path }: { path?: string[] }) {
     return null;
   }
 
+  const uuid = path?.[path.length - 1];
   const { children, type } = state;
 
   switch (type) {
     case "Mesh": {
       return <BoxMesh key={path?.join(".")} path={path} />;
+    }
+    case "Object3D": {
+      return (
+        <object3D key={path?.join(".")} uuid={uuid}>
+          {children &&
+            Array.from(children, ([key]) => {
+              return (
+                <ObjectRecursive
+                  key={key}
+                  path={path ? [...path, key] : [key]}
+                />
+              );
+            })}
+        </object3D>
+      );
     }
     default: {
       return (
@@ -122,13 +144,31 @@ function ObjectScene({ path }: { path?: string[] }) {
           {children &&
             Array.from(children, ([key]) => {
               return (
-                <ObjectScene key={key} path={path ? [...path, key] : [key]} />
+                <ObjectRecursive
+                  key={key}
+                  path={path ? [...path, key] : [key]}
+                />
               );
             })}
         </>
       );
     }
   }
+}
+
+function ObjecScene() {
+  const state = useStorage((root) => {
+    // @ts-expect-error
+    return Array.from(root.object.keys()) as string[];
+  });
+
+  return (
+    <>
+      {state?.map((key: string) => {
+        return <ObjectRecursive key={key} path={[key]} />;
+      })}
+    </>
+  );
 }
 
 const Scene = () => {
@@ -138,7 +178,7 @@ const Scene = () => {
     <>
       <ambientLight intensity={0.75} color={0xffffff} />
       <pointLight position={[10, 10, 10]} />
-      <ObjectScene />
+      <ObjecScene />
       <PresenceOutlines />
       {isOrtho ? (
         <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={50} />
@@ -174,9 +214,9 @@ function App() {
           selectedTransform: new Matrix4().toArray(),
         }}
         initialStorage={{
-          geometries: {},
-          materials: {},
-          object: {},
+          geometries: new LiveMap(),
+          materials: new LiveMap(),
+          object: new LiveMap(),
           metadata: {
             generator: "threejs",
             type: "scene",
@@ -185,24 +225,26 @@ function App() {
         }}
       >
         <ClientSideSuspense fallback={<div>Loading…</div>}>
-          <Canvas
-            style={{
-              width: "100vw",
-              height: "100vh",
-              display: "block",
-              position: "absolute",
-              top: 0,
-              left: 0,
-            }}
-            onPointerMissed={() => {
-              // @ts-expect-error
-              transformControlRef.current?.deselect();
-            }}
-          >
-            <TransformControlsProvider ref={transformControlRef}>
-              <Scene />
-            </TransformControlsProvider>
-          </Canvas>
+          <CommandBarProvider>
+            <Canvas
+              style={{
+                width: "100vw",
+                height: "100vh",
+                display: "block",
+                position: "absolute",
+                top: 0,
+                left: 0,
+              }}
+              onPointerMissed={() => {
+                // @ts-expect-error
+                transformControlRef.current?.deselect();
+              }}
+            >
+              <TransformControlsProvider ref={transformControlRef}>
+                <Scene />
+              </TransformControlsProvider>
+            </Canvas>
+          </CommandBarProvider>
         </ClientSideSuspense>
       </RoomProvider>
     </LiveblocksProvider>

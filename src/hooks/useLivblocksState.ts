@@ -24,13 +24,13 @@ export const useLiveblocksState = ({ path: _path }: { path?: string[] }) => {
     if (!path) {
       return null;
     } else {
-      // @ts-expect-error
-      let children = rootObject.get("children");
+      let children = rootObject;
 
       for (let key of path) {
         if (!children) {
           break;
         }
+        // @ts-expect-error
         const child = children.get(key);
         if (!child) {
           break;
@@ -78,13 +78,13 @@ export const useLiveblocksState = ({ path: _path }: { path?: string[] }) => {
       let object;
 
       if (path) {
-        // @ts-expect-error
-        let children = rootObject.get("children");
+        let children = rootObject;
 
         for (let key of path) {
           if (!children) {
             break;
           }
+          // @ts-expect-error
           const child = children.get(key);
           if (!child) {
             break;
