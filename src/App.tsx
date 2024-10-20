@@ -13,7 +13,7 @@ import {
   useTransformControlsProvider,
 } from "./hooks/TransformControlsProvider";
 import { useLiveblocksState } from "./hooks/useLivblocksState";
-import { funName, stringToColor } from "./utils/nameGenerator";
+import { funName, roomName, stringToColor } from "./utils/nameGenerator";
 import { useTransformState } from "./hooks/useTransformState";
 import { PresenceOutlines } from "./components/PresenceOutlines";
 
@@ -96,7 +96,7 @@ function ObjectScene({ path }: { path?: string[] }) {
       }
     }
 
-    if (!object) {
+    if (!object || !object.get) {
       return null;
     }
 
@@ -155,6 +155,10 @@ function App() {
   const name = funName();
   const color = stringToColor(name);
 
+  const [room, _setRoom] = useState(
+    window.location.pathname.split("/").pop() ?? roomName()
+  );
+
   return (
     <LiveblocksProvider
       publicApiKey={
@@ -162,7 +166,7 @@ function App() {
       }
     >
       <RoomProvider
-        id="my-room"
+        id={room}
         initialPresence={{
           name,
           color,

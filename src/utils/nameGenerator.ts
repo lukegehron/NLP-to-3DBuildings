@@ -105,10 +105,69 @@ const nouns = [
   "Harp",
 ];
 
+const placeNames = [
+  "Riga",
+  "Gent",
+  "York",
+  "Oslo",
+  "Bath",
+  "Pisa",
+  "Brno",
+  "Lyon",
+  "Zug",
+  "Lviv",
+  "Metz",
+  "Faro",
+  "Graz",
+  "Trier",
+  "Ruse",
+  "Vigo",
+  "Linz",
+  "Mons",
+  "Aix",
+  "Lund",
+  "Myth",
+  "Fae",
+  "Lore",
+  "Helm",
+  "Bree",
+  "Gond",
+  "Vale",
+  "Haze",
+  "Frost",
+  "Mist",
+  "Gloom",
+  "Dusk",
+  "Dawn",
+  "Spire",
+  "Forge",
+  "Haven",
+  "Crest",
+  "Glen",
+  "Tide",
+  "Brink",
+  "Shard",
+  "Firth",
+  "Cairn",
+  "Wyrd",
+  "Glade",
+  "Rune",
+  "Rath",
+  "Tor",
+  "Dell",
+  "Fen",
+];
+
 export const funName = () => {
   const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
   const noun = nouns[Math.floor(Math.random() * nouns.length)];
   return `${adj}-${noun}`.toLowerCase();
+};
+
+export const roomName = () => {
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const place = placeNames[Math.floor(Math.random() * placeNames.length)];
+  return `${adj}-${place}`.toLowerCase();
 };
 
 export const stringToColor = (inputString: string): string => {
