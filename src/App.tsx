@@ -1,22 +1,11 @@
-import React, { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
-import {
-  BufferGeometry,
-  Euler,
-  Material,
-  Matrix4,
-  Mesh,
-  NormalBufferAttributes,
-  Object3DEventMap,
-  Quaternion,
-  Vector3,
-} from "three";
+import { Matrix4 } from "three";
 import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
-  useOthersMapped,
   useStorage,
 } from "@liveblocks/react";
 import {
@@ -24,9 +13,9 @@ import {
   useTransformControlsProvider,
 } from "./hooks/TransformControlsProvider";
 import { useLiveblocksState } from "./hooks/useLivblocksState";
-import { funName, stringToColor } from "./nameGenerator";
-import { Outlines } from "./OutlinedObject";
+import { funName, stringToColor } from "./utils/nameGenerator";
 import { useTransformState } from "./hooks/useTransformState";
+import { PresenceOutlines } from "./components/PresenceOutlines";
 
 function BoxMesh({ path }: { path?: string[] }) {
   const { state } = useLiveblocksState({ path });
@@ -141,42 +130,6 @@ function ObjectScene({ path }: { path?: string[] }) {
     }
   }
 }
-
-const PresenceOutlines = () => {
-  const presenceData = useOthersMapped((other) => ({
-    color: other.presence?.color,
-    selected: other.presence?.selected,
-  }));
-
-  return (
-    <>
-      {presenceData.map(([key, data]) => {
-        // @ts-expect-error
-        if (data.selected && data.selected.length > 0) {
-          // @ts-expect-error
-          const uuid = data.selected[data.selected.length - 1];
-          // validate data.selected
-          if (
-            !Array.isArray(data.selected) ||
-            data.selected.length === 0 ||
-            !data.selected.every((s) => typeof s === "string")
-          ) {
-            return null;
-          }
-          return (
-            <Outlines
-              key={key}
-              path={data.selected as string[]}
-              color={data.color as string}
-              thickness={10}
-            />
-          );
-        }
-        return null;
-      })}
-    </>
-  );
-};
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);

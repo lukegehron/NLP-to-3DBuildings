@@ -11,7 +11,7 @@ import * as THREE from "three";
 import { shaderMaterial } from "@react-three/drei";
 import { REVISION } from "three";
 import { toCreasedNormals } from "three-stdlib";
-import { useTransformState } from "./hooks/useTransformState";
+import { useTransformState } from "../hooks/useTransformState";
 
 const OutlinesMaterial = /* @__PURE__ */ shaderMaterial(
   {
