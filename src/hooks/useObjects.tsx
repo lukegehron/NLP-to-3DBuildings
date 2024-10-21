@@ -1,6 +1,5 @@
 import { LiveMap, Lson } from "@liveblocks/client";
 import { useMutation } from "@liveblocks/react";
-import { useThree } from "@react-three/fiber";
 import { useCallback } from "react";
 import * as THREE from "three";
 import { createLiveObject3d } from "../utils/state";
@@ -45,6 +44,42 @@ export const useAddObjects = () => {
     object.set(partialObject.object.uuid, lObject);
   }, []);
 
+  const deleteObject = useMutation(({ storage }, path: string[]) => {
+    let children = storage.get("object");
+    // let objectToDelete;
+    let materialUUID, geometryUUID;
+
+    for (let key of path) {
+      if (!children) {
+        break;
+      }
+      // @ts-expect-error
+      const child = children.get(key);
+      if (!child) {
+        break;
+      }
+
+      if (child.get("uuid") === path[path.length - 1]) {
+        materialUUID = child.get("material");
+        geometryUUID = child.get("geometry");
+        // @ts-expect-error
+        children.delete(key);
+      } else {
+        children = child.get("children");
+      }
+    }
+
+    if (materialUUID) {
+      // @ts-expect-error
+      storage.get("materials").delete(materialUUID);
+    }
+
+    if (geometryUUID) {
+      // @ts-expect-error
+      storage.get("geometries").delete(geometryUUID);
+    }
+  }, []);
+
   const addBox = useCallback(
     ({
       geometryParams = {
@@ -86,5 +121,5 @@ export const useAddObjects = () => {
     []
   );
 
-  return { addBox };
+  return { addBox, deleteObject };
 };

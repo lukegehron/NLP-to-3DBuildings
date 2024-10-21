@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
 import { Matrix4 } from "three";
@@ -10,7 +10,7 @@ import {
 } from "@liveblocks/react";
 import {
   TransformControlsProvider,
-  useTransformControlsProvider,
+  useTransformControls,
 } from "./hooks/TransformControlsProvider";
 import { useLiveblocksState } from "./hooks/useLivblocksState";
 import { funName, roomName, stringToColor } from "./utils/nameGenerator";
@@ -18,10 +18,11 @@ import { useTransformState } from "./hooks/useTransformState";
 import { PresenceOutlines } from "./components/PresenceOutlines";
 import { CommandBarProvider } from "./components/ui/CommandBarContext";
 import { LiveMap } from "@liveblocks/client";
+import { KeyboardControlsProvider } from "./hooks/KeyboardControlsProvder";
 
 function BoxMesh({ path }: { path?: string[] }) {
   const { state } = useLiveblocksState({ path });
-  const { setSelectedObject } = useTransformControlsProvider();
+  const { setSelectedObject } = useTransformControls();
   const { position, rotation, scale } = useTransformState({ path });
 
   const { geometry, material, object } = useMemo(() => {
@@ -196,8 +197,30 @@ function App() {
   const color = stringToColor(name);
 
   const [room, _setRoom] = useState(
-    window.location.pathname.split("/").pop() ?? roomName()
+    window.location.pathname.split("/").pop() || roomName()
   );
+
+  const navigateHandler = useCallback(() => {
+    const roomName = window.location.pathname.split("/").pop();
+    if (roomName) {
+      _setRoom(roomName);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("popstate", navigateHandler);
+
+    return () => {
+      window.removeEventListener("popstate", navigateHandler);
+    };
+  }, [navigateHandler]);
+
+  useEffect(() => {
+    const currRoomName = window.location.pathname.split("/").pop();
+    if (!currRoomName) {
+      window.history.pushState({}, "", room);
+    }
+  }, [room]);
 
   return (
     <LiveblocksProvider
@@ -241,7 +264,9 @@ function App() {
               }}
             >
               <TransformControlsProvider ref={transformControlRef}>
-                <Scene />
+                <KeyboardControlsProvider>
+                  <Scene />
+                </KeyboardControlsProvider>
               </TransformControlsProvider>
             </Canvas>
           </CommandBarProvider>

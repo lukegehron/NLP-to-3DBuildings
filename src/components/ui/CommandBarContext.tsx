@@ -6,7 +6,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "./CommandBar";
-import { useAddObjects } from "../../hooks/useAddObjects";
+import { useAddObjects } from "../../hooks/useObjects";
 
 interface CommandBarState {
   foo?: string;

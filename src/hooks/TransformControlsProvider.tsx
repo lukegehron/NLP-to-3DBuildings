@@ -37,6 +37,22 @@ export const TransformControlsProvider = forwardRef(
       undefined
     );
 
+    const transformControlsRef = useRef(null);
+
+    useEffect(() => {
+      if (!transformControlsRef.current) {
+        return;
+      }
+
+      if (selectedObject) {
+        // @ts-expect-error
+        transformControlsRef.current.attach(selectedObject);
+      } else {
+        // @ts-expect-error
+        transformControlsRef.current.detach();
+      }
+    }, [selectedObject]);
+
     useImperativeHandle(ref, () => ({
       deselect: () => setSelectedObject(undefined),
     }));
@@ -110,6 +126,7 @@ export const TransformControlsProvider = forwardRef(
         {children}
         {selectedObject && (
           <TransformControls
+            ref={transformControlsRef}
             object={selectedObject}
             onMouseDown={() => setIsTransforming(true)}
             onMouseUp={() => {
@@ -128,7 +145,6 @@ export const TransformControlsProvider = forwardRef(
   }
 );
 
-export const useTransformControlsProvider =
-  (): TransformControlsContextValue => {
-    return useContext(TransformControlsContext);
-  };
+export const useTransformControls = (): TransformControlsContextValue => {
+  return useContext(TransformControlsContext);
+};
