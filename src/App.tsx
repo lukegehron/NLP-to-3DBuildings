@@ -1,6 +1,14 @@
 import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrthographicCamera, PerspectiveCamera } from "@react-three/drei";
+import {
+  ContactShadows,
+  Environment,
+  GizmoHelper,
+  GizmoViewcube,
+  Grid,
+  OrthographicCamera,
+  PerspectiveCamera,
+} from "@react-three/drei";
 import { Matrix4 } from "three";
 import {
   ClientSideSuspense,
@@ -57,6 +65,8 @@ function BoxMesh({ path }: { path?: string[] }) {
       position={position}
       rotation={rotation}
       scale={scale}
+      receiveShadow={true}
+      castShadow={true}
       // matrix is auto updated by transform controls
       // matrixAutoUpdate={false}
       // matrix={matrix}
@@ -65,7 +75,12 @@ function BoxMesh({ path }: { path?: string[] }) {
       }}
     >
       <boxGeometry {...geometry} />
-      <meshBasicMaterial {...material} />
+      {material && material.type === "MeshBasicMaterial" && (
+        <meshBasicMaterial {...material} />
+      )}
+      {material && material.type === "MeshStandardMaterial" && (
+        <meshStandardMaterial {...material} />
+      )}
     </mesh>
   );
 }
@@ -177,15 +192,44 @@ const Scene = () => {
 
   return (
     <>
-      <ambientLight intensity={0.75} color={0xffffff} />
-      <pointLight position={[10, 10, 10]} />
+      <Environment preset="city" />
       <ObjecScene />
       <PresenceOutlines />
       {isOrtho ? (
-        <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={50} />
+        <OrthographicCamera
+          makeDefault
+          position={[5, 5, 5]}
+          zoom={50}
+          near={-100}
+        />
       ) : (
-        <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={75} />
+        <PerspectiveCamera makeDefault position={[5, 9, 5]} fov={50} />
       )}
+      <GizmoHelper alignment="top-right" margin={[80, 80]}>
+        <GizmoViewcube />
+      </GizmoHelper>
+      <ContactShadows
+        opacity={0.5}
+        scale={10}
+        blur={3}
+        far={10}
+        resolution={256}
+        color="#000000"
+      />
+      <Grid
+        position={[0, -0.1, 0]}
+        args={[10.5, 10.5]}
+        cellSize={0.6}
+        cellThickness={1}
+        cellColor={"#6f6f6f"}
+        sectionSize={3.3}
+        sectionThickness={1.5}
+        sectionColor={"#6699FF"}
+        fadeDistance={50}
+        fadeStrength={1}
+        followCamera={false}
+        infiniteGrid={true}
+      />
     </>
   );
 };

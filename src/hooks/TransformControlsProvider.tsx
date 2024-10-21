@@ -1,4 +1,8 @@
-import { OrbitControls, TransformControls } from "@react-three/drei";
+import {
+  OrbitControls,
+  PivotControls,
+  TransformControls,
+} from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import React, {
   useEffect,
@@ -37,6 +41,10 @@ export const TransformControlsProvider = forwardRef(
       undefined
     );
 
+    const selObjectRef = useRef<{ object: Object3D | undefined }>({
+      object: undefined,
+    });
+
     const transformControlsRef = useRef(null);
 
     useEffect(() => {
@@ -74,6 +82,7 @@ export const TransformControlsProvider = forwardRef(
       }
 
       _setSelectedObject(selectedObject);
+      selObjectRef.current.object = selectedObject;
 
       const matrix = selectedObject.matrix.toArray();
       updateMyPresence({ selected: path, selectedTransform: matrix });
@@ -133,12 +142,15 @@ export const TransformControlsProvider = forwardRef(
               onTransformEnd();
               setIsTransforming(false);
             }}
+            castShadow={false}
           />
         )}
         <OrbitControls
           ref={orbitControlsRef}
           // @ts-expect-error
           args={[undefined, gl.domElement]}
+          maxZoom={100}
+          minZoom={1}
         />
       </TransformControlsContext.Provider>
     );

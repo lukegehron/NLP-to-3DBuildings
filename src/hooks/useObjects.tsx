@@ -3,6 +3,7 @@ import { useMutation } from "@liveblocks/react";
 import { useCallback } from "react";
 import * as THREE from "three";
 import { createLiveObject3d } from "../utils/state";
+import { randomColor } from "../utils/randomColor";
 
 export const useAddObjects = () => {
   // const { scene } = useThree();
@@ -109,12 +110,18 @@ export const useAddObjects = () => {
       const newBoxGeometry = new THREE.BoxGeometry(
         ...Object.values(geometryParams)
       );
-      const newBoxMaterial = new THREE.MeshBasicMaterial(
-        materialParams ?? { color: 0x00ff00, opacity: 1.0 }
-      );
+      const color = randomColor();
+      const newBoxMaterial = new THREE.MeshStandardMaterial({
+        color,
+        opacity: 1.0,
+        ...materialParams,
+      });
       const newMesh = new THREE.Mesh(newBoxGeometry, newBoxMaterial);
+      newMesh.castShadow = true;
+      newMesh.receiveShadow = true;
+      newMesh.position.set(0, 1, 0);
+      newMesh.updateMatrix();
       newObj.add(newMesh);
-      // scene.add(newObj);
       const jsonObj = newObj.toJSON();
       addObject(jsonObj);
     },
