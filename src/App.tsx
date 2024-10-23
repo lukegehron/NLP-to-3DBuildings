@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -18,7 +18,7 @@ import {
   TransformControlsProvider,
   useTransformControls,
 } from "./hooks/TransformControlsProvider";
-import { funName, roomName, stringToColor } from "./utils/nameGenerator";
+import { funName, stringToColor } from "./utils/nameGenerator";
 import { PresenceOutlines } from "./components/PresenceOutlines";
 import { CommandBarProvider } from "./components/ui/CommandBarContext";
 import { LiveMap } from "@liveblocks/client";
@@ -27,6 +27,7 @@ import { useSceneState } from "./hooks/useSceneState";
 import { ComponentRegistry } from "./elements/ComponentRegistry";
 import { useTransformState } from "./hooks/useTransformState";
 import { SceneComponentData } from "./types";
+import { useRoomRoute } from "./hooks/useRoomRoute";
 
 const SceneNode = ({ node }: { node: any }) => {
   // @ts-expect-error
@@ -120,39 +121,13 @@ const Scene = () => {
 };
 
 function App() {
+  const room = useRoomRoute();
+
+  // Reference to the imperative api provided by TransformControlsProvider
   const transformControlRef = useRef<{ deselect: () => void }>();
 
   const name = funName();
   const color = stringToColor(name);
-
-  const [room, _setRoom] = useState(() => {
-    const path = window.location.pathname;
-    const roomPath = path.replace(/^\/buildosaur\/?/, "");
-    return roomPath || roomName();
-  });
-
-  const navigateHandler = useCallback(() => {
-    const path = window.location.pathname;
-    const roomPath = path.replace(/^\/buildosaur\/?/, "");
-    if (roomPath) {
-      _setRoom(roomPath);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("popstate", navigateHandler);
-    return () => {
-      window.removeEventListener("popstate", navigateHandler);
-    };
-  }, [navigateHandler]);
-
-  useEffect(() => {
-    const path = window.location.pathname;
-    const roomPath = path.replace(/^\/buildosaur\/?/, "");
-    if (!roomPath) {
-      window.history.pushState({}, "", `/buildosaur/${room}`);
-    }
-  }, [room]);
 
   return (
     <LiveblocksProvider
@@ -188,7 +163,6 @@ function App() {
                 far: 100,
               }}
               onPointerMissed={() => {
-                console.log("pointer missed");
                 transformControlRef.current?.deselect();
               }}
             >
