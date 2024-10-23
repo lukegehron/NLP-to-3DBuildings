@@ -44,7 +44,9 @@ export type SceneComponentData = {
   id: string;
   parentId?: string;
   type: string;
-  props: ComponentProps;
+  // props: LiveObject<ComponentProps>;
 };
 
-export type SceneComponent = LiveObject<SceneComponentData>;
+export type SceneComponent = LiveObject<
+  SceneComponentData & { props: LiveObject<ComponentProps> }
+>;

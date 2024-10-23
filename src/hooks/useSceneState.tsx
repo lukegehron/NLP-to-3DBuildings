@@ -12,7 +12,9 @@ export const useSceneState = () => {
     const components = root.components;
     if (!components) return null;
 
-    const buildTree = (parentId?: string): SceneComponentData[] => {
+    const buildTree = (
+      parentId?: string
+    ): (SceneComponentData & { props: ComponentProps })[] => {
       return Array.from(components.entries())
         .filter(([_, component]) => component.parentId === parentId)
         .map(([id, component]) => ({
@@ -47,7 +49,7 @@ export const useSceneState = () => {
           id,
           type,
           parentId,
-          props,
+          props: new LiveObject(props),
         })
       );
       return id;
@@ -68,11 +70,9 @@ export const useSceneState = () => {
       }
     ) => {
       const component = storage.get("components")?.get(id);
+      console.log(props);
       if (component) {
-        Object.entries(props).forEach(([key, value]) => {
-          // @ts-expect-error
-          component.get("props")[key] = value;
-        });
+        component.get("props").update(props);
       }
     },
     []

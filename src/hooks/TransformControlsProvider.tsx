@@ -9,10 +9,12 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { Object3D } from "three";
-import { useSelection } from "./useSelection";
+import { Camera, EulerOrder, Object3D } from "three";
 import { useUpdateMyPresence } from "@liveblocks/react";
 import { useSceneState } from "./useSceneState";
+import { TransformControls as TransformControlsImpl } from "three-stdlib";
+import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { EulerTuple } from "../types";
 
 interface TransformControlsContextValue {
   selectedId: string | null;
@@ -39,8 +41,8 @@ export const TransformControlsProvider = forwardRef(
     const { updateComponent } = useSceneState();
     const updateMyPresence = useUpdateMyPresence();
 
-    const transformControlsRef = useRef(null);
-    const orbitControlsRef = useRef(null);
+    const transformControlsRef = useRef<TransformControlsImpl<Camera>>(null);
+    const orbitControlsRef = useRef<OrbitControlsImpl>(null);
     const intervalRef = useRef<number | undefined>(undefined);
 
     useImperativeHandle(ref, () => ({
@@ -54,10 +56,8 @@ export const TransformControlsProvider = forwardRef(
       }
 
       if (selectedObject) {
-        // @ts-expect-error
         transformControlsRef.current.attach(selectedObject);
       } else {
-        // @ts-expect-error
         transformControlsRef.current.detach();
       }
     }, [selectedObject]);
@@ -81,7 +81,6 @@ export const TransformControlsProvider = forwardRef(
     useEffect(() => {
       if (orbitControlsRef.current) {
         const controls = orbitControlsRef.current;
-        // @ts-expect-error
         controls.enabled = !isTransforming;
       }
     }, [isTransforming]);
@@ -117,7 +116,7 @@ export const TransformControlsProvider = forwardRef(
       const object = scene.getObjectByProperty("uuid", selectedId);
       if (!object) return;
       const position = object.position.toArray();
-      const rotation = object.rotation.toArray();
+      const rotation = createEuler(...object.rotation.toArray());
       const scale = object.scale.toArray();
 
       updateComponent({ id: selectedId, props: { position, rotation, scale } });
@@ -165,3 +164,13 @@ export const TransformControlsProvider = forwardRef(
 export const useTransformControls = (): TransformControlsContextValue => {
   return useContext(TransformControlsContext);
 };
+
+// Helper function to create Euler rotation with a required order
+export function createEuler(
+  x: number,
+  y: number,
+  z: number,
+  order: EulerOrder = "XYZ"
+): EulerTuple {
+  return [x, y, z, order];
+}

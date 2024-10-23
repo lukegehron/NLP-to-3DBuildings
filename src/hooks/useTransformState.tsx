@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { isValidMatrix, useSelTransformMap } from "./useSelTransformMap";
 import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import { useStorage } from "@liveblocks/react";
@@ -17,11 +17,14 @@ export const useTransformState = (uuid: string) => {
     return item[1].selTransform;
   }, [uuid, selTransformMap]);
 
-  const component = useStorage((root) => root.components?.get(uuid));
+  const component = useStorage((root) => root.components?.get(uuid)?.props);
+
+  useEffect(() => {
+    console.log("component props", component);
+  }, [component]);
 
   const [position, rotation, scale] = useMemo(() => {
     if (selTransform && isValidMatrix(selTransform)) {
-      // @ts-expect-error
       const matrix = new Matrix4().fromArray(selTransform);
 
       let p = new Vector3();
@@ -33,11 +36,14 @@ export const useTransformState = (uuid: string) => {
       let euler = new Euler().setFromQuaternion(r);
 
       return [p, euler, s];
-    } else {
-      const position = component.props.position;
-      const rotation = component.props.rotation;
-      const scale = component.props.scale;
+    } else if (component) {
+      console.log(component.props);
+      const position = component.position;
+      const rotation = component.rotation;
+      const scale = component.scale;
       return [position, rotation, scale];
+    } else {
+      return [new Vector3(), new Euler(), new Vector3(1, 1, 1)];
     }
   }, [component, selTransform]);
 

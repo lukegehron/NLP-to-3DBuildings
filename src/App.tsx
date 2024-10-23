@@ -120,7 +120,7 @@ const Scene = () => {
 };
 
 function App() {
-  const transformControlRef = useRef();
+  const transformControlRef = useRef<{ deselect: () => void }>();
 
   const name = funName();
   const color = stringToColor(name);
@@ -186,7 +186,6 @@ function App() {
               }}
               onPointerMissed={() => {
                 console.log("pointer missed");
-                // @ts-expect-error
                 transformControlRef.current?.deselect();
               }}
             >

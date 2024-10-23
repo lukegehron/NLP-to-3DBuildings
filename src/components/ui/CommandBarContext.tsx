@@ -80,6 +80,8 @@ export const CommandBarProvider = ({
                 props: {
                   color: randomColor(),
                   position: [0, 3, 0],
+                  rotation: [0, 0, 0, "XYZ"],
+                  scale: [1, 1, 1],
                   width: 1,
                   height: 1,
                   length: 10,
@@ -98,6 +100,8 @@ export const CommandBarProvider = ({
                 props: {
                   color: randomColor(),
                   position: [0, 3, 0],
+                  rotation: [0, 0, 0, "XYZ"],
+                  scale: [1, 1, 1],
                 },
               });
             }}
