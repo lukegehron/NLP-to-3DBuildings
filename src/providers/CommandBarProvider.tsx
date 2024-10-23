@@ -4,11 +4,10 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
   CommandGroup,
-} from "./CommandBar";
-import { useSceneState } from "../../hooks/useSceneState";
-import { randomColor } from "../../utils/randomColor";
+} from "../components/ui/CommandBar";
+import { useSceneState } from "../hooks/useSceneState";
+import { randomColor } from "../utils/randomColor";
 import {
   ArrowClockwise,
   ArrowsAngleExpand,

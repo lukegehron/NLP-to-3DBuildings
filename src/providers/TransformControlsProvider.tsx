@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { Camera, EulerOrder, Object3D } from "three";
 import { useUpdateMyPresence } from "@liveblocks/react";
-import { useSceneState } from "./useSceneState";
+import { useSceneState } from "../hooks/useSceneState";
 import { TransformControls as TransformControlsImpl } from "three-stdlib";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { EulerTuple } from "../types";

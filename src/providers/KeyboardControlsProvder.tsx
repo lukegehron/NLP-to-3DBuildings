@@ -1,7 +1,7 @@
 import { useRedo, useUndo } from "@liveblocks/react";
 import React, { useContext, useEffect } from "react";
 import { useTransformControls } from "./TransformControlsProvider";
-import { useSceneState } from "./useSceneState";
+import { useSceneState } from "../hooks/useSceneState";
 
 interface KeyboardControlsValue {
   enabled: boolean;

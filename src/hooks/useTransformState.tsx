@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { isValidMatrix, useSelTransformMap } from "./useSelTransformMap";
 import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import { useStorage } from "@liveblocks/react";

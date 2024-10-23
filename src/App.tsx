@@ -17,67 +17,20 @@ import {
 import {
   TransformControlsProvider,
   TransformControlsProviderRef,
-  useTransformControls,
-} from "./hooks/TransformControlsProvider";
+} from "./providers/TransformControlsProvider";
 import { funName, stringToColor } from "./utils/nameGenerator";
 import { PresenceOutlines } from "./components/PresenceOutlines";
-import { CommandBarProvider } from "./components/ui/CommandBarContext";
+import { CommandBarProvider } from "./providers/CommandBarProvider";
 import { LiveMap } from "@liveblocks/client";
-import { KeyboardControlsProvider } from "./hooks/KeyboardControlsProvder";
-import { useSceneState } from "./hooks/useSceneState";
-import { ComponentRegistry } from "./elements/ComponentRegistry";
-import { useTransformState } from "./hooks/useTransformState";
-import { SceneComponentData } from "./types";
+import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder";
 import { useRoomRoute } from "./hooks/useRoomRoute";
-
-const SceneNode = ({ node }: { node: any }) => {
-  // @ts-expect-error
-  const Component = ComponentRegistry[node.type];
-
-  const { setSelectedId } = useTransformControls();
-
-  const { position, rotation, scale } = useTransformState(node.id);
-
-  if (!Component) return null;
-
-  return (
-    <Component
-      {...node.props}
-      position={position}
-      rotation={rotation}
-      scale={scale}
-      uuid={node.id}
-      onClick={() => {
-        setSelectedId(node.id);
-      }}
-    >
-      {node.children?.map((child: SceneComponentData) => (
-        <SceneNode key={child.id} node={child} />
-      ))}
-    </Component>
-  );
-};
-
-export const SceneRenderer = () => {
-  const { sceneGraph } = useSceneState();
-
-  if (!sceneGraph) return null;
-
-  return (
-    <>
-      {sceneGraph.map((node) => (
-        <SceneNode key={node.id} node={node} />
-      ))}
-    </>
-  );
-};
+import { SceneRenderer } from "./components/SceneRenderer";
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
 
   return (
     <>
-      <Environment preset="city" />
       <SceneRenderer />
       <PresenceOutlines />
       {isOrtho ? (
@@ -90,6 +43,7 @@ const Scene = () => {
       ) : (
         <PerspectiveCamera makeDefault position={[5, 9, 5]} fov={50} />
       )}
+      <Environment preset="city" />
       <GizmoHelper alignment="top-right" margin={[80, 80]}>
         <GizmoViewcube />
       </GizmoHelper>
