@@ -19,10 +19,6 @@ export const useTransformState = (uuid: string) => {
 
   const component = useStorage((root) => root.components?.get(uuid)?.props);
 
-  useEffect(() => {
-    console.log("component props", component);
-  }, [component]);
-
   const [position, rotation, scale] = useMemo(() => {
     if (selTransform && isValidMatrix(selTransform)) {
       const matrix = new Matrix4().fromArray(selTransform);
@@ -37,7 +33,6 @@ export const useTransformState = (uuid: string) => {
 
       return [p, euler, s];
     } else if (component) {
-      console.log(component.props);
       const position = component.position;
       const rotation = component.rotation;
       const scale = component.scale;

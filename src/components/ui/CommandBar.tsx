@@ -65,7 +65,7 @@ const CommandList = React.forwardRef<
   <CommandPrimitive.List
     ref={ref}
     className={clsx(
-      "max-h-[300px] overflow-y-auto overflow-x-hidden p-2",
+      "max-h-[300px] overflow-y-auto overflow-x-hidden",
       className
     )}
     {...props}
@@ -94,7 +94,7 @@ const CommandGroup = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={clsx(
-      "overflow-hidden p-1 text-black [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray",
+      "overflow-hidden p-1 text-[#] [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray",
       className
     )}
     {...props}

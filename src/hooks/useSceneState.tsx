@@ -70,7 +70,6 @@ export const useSceneState = () => {
       }
     ) => {
       const component = storage.get("components")?.get(id);
-      console.log(props);
       if (component) {
         component.get("props").update(props);
       }

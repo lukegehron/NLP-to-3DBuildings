@@ -30,10 +30,8 @@ export const KeyboardControlsProvider = ({
         case "z":
           if (e.ctrlKey || e.metaKey) {
             if (e.shiftKey) {
-              console.log("Shift + Ctrl + Z");
               redo();
             } else {
-              console.log("Ctrl + Z");
               undo();
             }
           }

@@ -19,6 +19,7 @@ import { EulerTuple } from "../types";
 interface TransformControlsContextValue {
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
+  setMode: (mode: "translate" | "rotate" | "scale") => void;
 }
 
 const TransformControlsContext =
@@ -45,8 +46,15 @@ export const TransformControlsProvider = forwardRef(
     const orbitControlsRef = useRef<OrbitControlsImpl>(null);
     const intervalRef = useRef<number | undefined>(undefined);
 
+    const [mode, setMode] = useState<"translate" | "rotate" | "scale">(
+      "translate"
+    );
+
     useImperativeHandle(ref, () => ({
       deselect: () => setSelectedId(null),
+      setMode: (newMode: "translate" | "rotate" | "scale") => {
+        setMode(newMode);
+      },
     }));
 
     // Attach / detach transform controls based on selected object
@@ -127,6 +135,7 @@ export const TransformControlsProvider = forwardRef(
         value={{
           selectedId,
           setSelectedId,
+          setMode,
         }}
       >
         {children}
@@ -140,6 +149,7 @@ export const TransformControlsProvider = forwardRef(
               setIsTransforming(false);
             }}
             castShadow={false}
+            mode={mode}
           />
         )}
         <OrbitControls
@@ -174,3 +184,8 @@ export function createEuler(
 ): EulerTuple {
   return [x, y, z, order];
 }
+
+export type TransformControlsProviderRef = {
+  deselect: () => void;
+  setMode: (mode: "translate" | "rotate" | "scale") => void;
+};

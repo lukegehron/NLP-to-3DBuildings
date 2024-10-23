@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -16,6 +16,7 @@ import {
 } from "@liveblocks/react";
 import {
   TransformControlsProvider,
+  TransformControlsProviderRef,
   useTransformControls,
 } from "./hooks/TransformControlsProvider";
 import { funName, stringToColor } from "./utils/nameGenerator";
@@ -124,10 +125,14 @@ function App() {
   const room = useRoomRoute();
 
   // Reference to the imperative api provided by TransformControlsProvider
-  const transformControlRef = useRef<{ deselect: () => void }>();
+  const transformControlRef = useRef<TransformControlsProviderRef>();
 
   const name = funName();
   const color = stringToColor(name);
+
+  const setMode = useCallback((mode: "rotate" | "scale" | "translate") => {
+    transformControlRef.current?.setMode(mode);
+  }, []);
 
   return (
     <LiveblocksProvider
@@ -148,7 +153,7 @@ function App() {
         }}
       >
         <ClientSideSuspense fallback={<div>Loading…</div>}>
-          <CommandBarProvider>
+          <CommandBarProvider setMode={setMode}>
             <Canvas
               style={{
                 width: "100vw",
