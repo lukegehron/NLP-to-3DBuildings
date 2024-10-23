@@ -1,42 +1,21 @@
 // Define Liveblocks types for your application
 // https://liveblocks.io/docs/api-reference/liveblocks-react#Typing-your-data
+import { LiveMap } from "@liveblocks/client";
+import { Matrix4, SceneComponent } from "./src/types";
+
 declare global {
   interface Liveblocks {
     // Each user's Presence, for useMyPresence, useOthers, etc.
     Presence: {
       name: string;
       color: string;
-      selected: string[];
-      selectedTransform: [
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number
-      ];
+      selected: string | null;
+      selectedTransform: Matrix4;
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
     Storage: {
-      geometries: Record<string, any>;
-      materials: Record<string, any>;
-      object: Record<string, any>;
-      metadata: {
-        generator: string;
-        type: string;
-        version: number;
-      };
+      components: LiveMap<string, SceneComponent>; // Replace 'any' with your component type
     };
 
     // Custom user info set when authenticating with a secret key

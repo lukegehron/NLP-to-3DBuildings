@@ -6,7 +6,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "./CommandBar";
-import { useAddObjects } from "../../hooks/useObjects";
+import { useSceneState } from "../../hooks/useSceneState";
+import { randomColor } from "../../utils/randomColor";
 
 interface CommandBarState {
   foo?: string;
@@ -56,7 +57,7 @@ export const CommandBarProvider = ({
 
   const [cBarState, setCBarState] = useState(DEFAULT_PREFERENCES);
 
-  const { addBox } = useAddObjects();
+  const { addComponent } = useSceneState();
 
   return (
     <Context.Provider
@@ -71,14 +72,37 @@ export const CommandBarProvider = ({
         <CommandSeparator />
         <CommandList>
           <CommandItem
-            key={"select-me"}
+            key={"create-wbeam"}
             onSelect={() => {
-              console.log("selected");
-              addBox({});
+              addComponent({
+                type: "Box",
+                props: {
+                  color: randomColor(),
+                  position: [0, 3, 0],
+                  width: 10,
+                  height: 10,
+                  length: 10,
+                },
+              });
             }}
             className="hover:bg-gray-100 p-2 rounded-md"
           >
             Add Box
+          </CommandItem>
+          <CommandItem
+            key={"create-wbeam"}
+            onSelect={() => {
+              addComponent({
+                type: "WBeam",
+                props: {
+                  color: randomColor(),
+                  position: [0, 3, 0],
+                },
+              });
+            }}
+            className="hover:bg-gray-100 p-2 rounded-md"
+          >
+            Add WBeam
           </CommandItem>
         </CommandList>
       </CommandDialog>

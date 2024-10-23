@@ -1,8 +1,4 @@
-import {
-  OrbitControls,
-  PivotControls,
-  TransformControls,
-} from "@react-three/drei";
+import { OrbitControls, TransformControls } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import React, {
   useEffect,
@@ -14,10 +10,13 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { Object3D } from "three";
-import { useLiveblocksState } from "./useLivblocksState";
+import { useSelection } from "./useSelection";
+import { useUpdateMyPresence } from "@liveblocks/react";
+import { useSceneState } from "./useSceneState";
 
 interface TransformControlsContextValue {
-  setSelectedObject: (path: string[] | undefined) => void;
+  selectedId: string | null;
+  setSelectedId: (id: string | null) => void;
 }
 
 const TransformControlsContext =
@@ -32,21 +31,23 @@ interface TransformControlProviderProps {
 export const TransformControlsProvider = forwardRef(
   ({ children }: TransformControlProviderProps, ref): React.ReactElement => {
     const { gl, scene } = useThree();
-    const { setState, setPath, updateMyPresence } = useLiveblocksState({
-      path: undefined,
-    });
 
     const [isTransforming, setIsTransforming] = useState(false);
-    const [selectedObject, _setSelectedObject] = useState<Object3D | undefined>(
-      undefined
-    );
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedObject, setSelectedObject] = useState<Object3D | null>(null);
 
-    const selObjectRef = useRef<{ object: Object3D | undefined }>({
-      object: undefined,
-    });
+    const { updateComponent } = useSceneState();
+    const updateMyPresence = useUpdateMyPresence();
 
     const transformControlsRef = useRef(null);
+    const orbitControlsRef = useRef(null);
+    const intervalRef = useRef<number | undefined>(undefined);
 
+    useImperativeHandle(ref, () => ({
+      deselect: () => setSelectedId(null),
+    }));
+
+    // Attach / detach transform controls based on selected object
     useEffect(() => {
       if (!transformControlsRef.current) {
         return;
@@ -61,35 +62,22 @@ export const TransformControlsProvider = forwardRef(
       }
     }, [selectedObject]);
 
-    useImperativeHandle(ref, () => ({
-      deselect: () => setSelectedObject(undefined),
-    }));
-
-    const setSelectedObject = useCallback((path?: string[]) => {
-      if (!path) {
-        _setSelectedObject(undefined);
-        updateMyPresence({ selected: [] });
-        return;
+    // Update selected object when selectedId changes
+    useEffect(() => {
+      if (selectedId) {
+        const object = scene.getObjectByProperty("uuid", selectedId);
+        if (object) {
+          setSelectedObject(object);
+          const matrix = object.matrix.toArray();
+          updateMyPresence({ selected: selectedId, selectedTransform: matrix });
+        }
+      } else {
+        setSelectedObject(null);
+        updateMyPresence({ selected: null, selectedTransform: null });
       }
+    }, [selectedId]);
 
-      setPath(path);
-
-      const uuid = path[path.length - 1];
-      const selectedObject = scene.getObjectByProperty("uuid", uuid);
-
-      if (!selectedObject) {
-        return;
-      }
-
-      _setSelectedObject(selectedObject);
-      selObjectRef.current.object = selectedObject;
-
-      const matrix = selectedObject.matrix.toArray();
-      updateMyPresence({ selected: path, selectedTransform: matrix });
-    }, []);
-
-    const orbitControlsRef = useRef(null);
-
+    // Disable orbit controls when transforming
     useEffect(() => {
       if (orbitControlsRef.current) {
         const controls = orbitControlsRef.current;
@@ -98,11 +86,11 @@ export const TransformControlsProvider = forwardRef(
       }
     }, [isTransforming]);
 
-    const intervalRef = useRef<number | undefined>(undefined);
-
+    // Update presence state during transformation
     useEffect(() => {
       if (isTransforming && selectedObject) {
         const update = () => {
+          if (!selectedObject) return;
           const matrix = selectedObject.matrix.toArray();
           updateMyPresence({ selectedTransform: matrix });
         };
@@ -110,26 +98,36 @@ export const TransformControlsProvider = forwardRef(
         // 120 fps, good performace control
         intervalRef.current = setInterval(update, 1000 / 120);
       } else if (typeof intervalRef.current === "number") {
-        updateMyPresence({ selectedTransform: null });
+        updateMyPresence({ selected: null, selectedTransform: null });
         clearInterval(intervalRef.current);
+        intervalRef.current = undefined;
       }
 
       return () => {
         if (typeof intervalRef.current === "number") {
           clearInterval(intervalRef.current);
+          intervalRef.current = undefined;
         }
       };
     }, [isTransforming, selectedObject]);
 
+    // Update component state when transformation ends
     const onTransformEnd = useCallback(() => {
-      const matrix = selectedObject?.matrix.toArray();
-      setState({ matrix });
-    }, [selectedObject]);
+      if (!selectedId) return;
+      const object = scene.getObjectByProperty("uuid", selectedId);
+      if (!object) return;
+      const position = object.position.toArray();
+      const rotation = object.rotation.toArray();
+      const scale = object.scale.toArray();
+
+      updateComponent({ id: selectedId, props: { position, rotation, scale } });
+    }, [selectedId]);
 
     return (
       <TransformControlsContext.Provider
         value={{
-          setSelectedObject,
+          selectedId,
+          setSelectedId,
         }}
       >
         {children}
@@ -151,6 +149,13 @@ export const TransformControlsProvider = forwardRef(
           args={[undefined, gl.domElement]}
           maxZoom={100}
           minZoom={1}
+          // Disable orbit controls during transformation
+          enabled={!isTransforming}
+          // Add additional props to make controls less eager to take over
+          enableDamping={true}
+          dampingFactor={0.05}
+          minPolarAngle={Math.PI / 4}
+          maxPolarAngle={Math.PI / 1.5}
         />
       </TransformControlsContext.Provider>
     );

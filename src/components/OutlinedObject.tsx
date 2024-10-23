@@ -72,7 +72,7 @@ const OutlinesMaterial = /* @__PURE__ */ shaderMaterial(
 extend({ OutlinesMaterial });
 
 type OutlinesProps = JSX.IntrinsicElements["group"] & {
-  path: string[];
+  uuid: string;
   /** Outline color, default: black */
   color?: ReactThreeFiber.Color;
   /** Line thickness is independent of zoom, default: false */
@@ -92,7 +92,7 @@ type OutlinesProps = JSX.IntrinsicElements["group"] & {
 };
 
 export function Outlines({
-  path,
+  uuid,
   color = "black",
   opacity = 1,
   transparent = false,
@@ -116,13 +116,12 @@ export function Outlines({
   const oldAngle = React.useRef(0);
   const oldGeometry = React.useRef<THREE.BufferGeometry>();
 
-  const { position, rotation, scale } = useTransformState({ path });
+  const { position, rotation, scale } = useTransformState(uuid);
 
   React.useLayoutEffect(() => {
     const group = ref.current;
     if (!group) return;
 
-    const uuid = path[path.length - 1];
     const outlinedObject = scene.getObjectByProperty(
       "uuid",
       uuid

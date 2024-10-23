@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -9,183 +9,65 @@ import {
   OrthographicCamera,
   PerspectiveCamera,
 } from "@react-three/drei";
-import { Matrix4 } from "three";
 import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
-  useStorage,
 } from "@liveblocks/react";
 import {
   TransformControlsProvider,
   useTransformControls,
 } from "./hooks/TransformControlsProvider";
-import { useLiveblocksState } from "./hooks/useLivblocksState";
 import { funName, roomName, stringToColor } from "./utils/nameGenerator";
-import { useTransformState } from "./hooks/useTransformState";
 import { PresenceOutlines } from "./components/PresenceOutlines";
 import { CommandBarProvider } from "./components/ui/CommandBarContext";
 import { LiveMap } from "@liveblocks/client";
 import { KeyboardControlsProvider } from "./hooks/KeyboardControlsProvder";
+import { useSceneState } from "./hooks/useSceneState";
+import { ComponentRegistry } from "./elements/ComponentRegistry";
+import { useTransformState } from "./hooks/useTransformState";
 
-function BoxMesh({ path }: { path?: string[] }) {
-  const { state } = useLiveblocksState({ path });
-  const { setSelectedObject } = useTransformControls();
-  const { position, rotation, scale } = useTransformState({ path });
+const SceneNode = ({ node }: { node: any }) => {
+  // @ts-expect-error
+  const Component = ComponentRegistry[node.type];
 
-  const { geometry, material, object } = useMemo(() => {
-    if (!state) {
-      return {
-        geometry: null,
-        material: null,
-        object: null,
-      };
-    }
+  const { setSelectedId } = useTransformControls();
 
-    const { geometry, material, object } = state;
+  const { position, rotation, scale } = useTransformState(node.id);
 
-    return {
-      geometry: Object.fromEntries(geometry.entries()),
-      material: Object.fromEntries(material.entries()),
-      object: Object.fromEntries(object.entries()),
-    };
-  }, [state]);
-
-  if (!state) {
-    return <></>;
-  }
+  if (!Component) return null;
 
   return (
-    <mesh
-      // important to keep three js scene uuid in line with stored uuid in liveblocks
-      uuid={object?.uuid}
-      // onUpdate function is called every time the mesh matrix is updated
-      // onUpdate={(self) => { }}
-      up={object?.up}
+    <Component
+      {...node.props}
       position={position}
       rotation={rotation}
       scale={scale}
-      receiveShadow={true}
-      castShadow={true}
-      // matrix is auto updated by transform controls
-      // matrixAutoUpdate={false}
-      // matrix={matrix}
+      uuid={node.id}
       onClick={() => {
-        setSelectedObject(path);
+        setSelectedId(node.id);
       }}
     >
-      <boxGeometry {...geometry} />
-      {material && material.type === "MeshBasicMaterial" && (
-        <meshBasicMaterial {...material} />
-      )}
-      {material && material.type === "MeshStandardMaterial" && (
-        <meshStandardMaterial {...material} />
-      )}
-    </mesh>
+      {node.children?.map((child) => (
+        <SceneNode key={child.id} node={child} />
+      ))}
+    </Component>
   );
-}
+};
 
-function ObjectRecursive({ path }: { path?: string[] }) {
-  const state = useStorage((root) => {
-    const rootObject = root.object;
+export const SceneRenderer = () => {
+  const { sceneGraph } = useSceneState();
 
-    if (!rootObject) {
-      return null;
-    }
-
-    let object = null;
-
-    if (!path) {
-      object = rootObject;
-    } else if (path) {
-      let children = rootObject;
-
-      for (let key of path) {
-        if (!children) {
-          break;
-        }
-        // @ts-expect-error
-        const child = children.get(key);
-        if (!child) {
-          break;
-        }
-
-        if (child.get("uuid") === path[path.length - 1]) {
-          object = child;
-        } else {
-          children = child.get("children");
-        }
-      }
-    }
-
-    if (!object || !object.get) {
-      return null;
-    }
-
-    return {
-      type: object.get("type"),
-      children: object.get("children"),
-    };
-  });
-
-  if (!state) {
-    return null;
-  }
-
-  const uuid = path?.[path.length - 1];
-  const { children, type } = state;
-
-  switch (type) {
-    case "Mesh": {
-      return <BoxMesh key={path?.join(".")} path={path} />;
-    }
-    case "Object3D": {
-      return (
-        <object3D key={path?.join(".")} uuid={uuid}>
-          {children &&
-            Array.from(children, ([key]) => {
-              return (
-                <ObjectRecursive
-                  key={key}
-                  path={path ? [...path, key] : [key]}
-                />
-              );
-            })}
-        </object3D>
-      );
-    }
-    default: {
-      return (
-        <>
-          {children &&
-            Array.from(children, ([key]) => {
-              return (
-                <ObjectRecursive
-                  key={key}
-                  path={path ? [...path, key] : [key]}
-                />
-              );
-            })}
-        </>
-      );
-    }
-  }
-}
-
-function ObjecScene() {
-  const state = useStorage((root) => {
-    // @ts-expect-error
-    return Array.from(root.object.keys()) as string[];
-  });
+  if (!sceneGraph) return null;
 
   return (
     <>
-      {state?.map((key: string) => {
-        return <ObjectRecursive key={key} path={[key]} />;
-      })}
+      {sceneGraph.map((node) => (
+        <SceneNode key={node.id} node={node} />
+      ))}
     </>
   );
-}
+};
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
@@ -193,7 +75,7 @@ const Scene = () => {
   return (
     <>
       <Environment preset="city" />
-      <ObjecScene />
+      <SceneRenderer />
       <PresenceOutlines />
       {isOrtho ? (
         <OrthographicCamera
@@ -209,11 +91,13 @@ const Scene = () => {
         <GizmoViewcube />
       </GizmoHelper>
       <ContactShadows
-        opacity={0.5}
-        scale={10}
-        blur={3}
+        opacity={0.55}
+        width={4}
+        height={4}
+        scale={20}
+        blur={0.75}
         far={10}
-        resolution={256}
+        resolution={1024}
         color="#000000"
       />
       <Grid
@@ -223,11 +107,11 @@ const Scene = () => {
         cellThickness={1}
         cellColor={"#6f6f6f"}
         sectionSize={3.3}
-        sectionThickness={1.5}
+        sectionThickness={1.25}
         sectionColor={"#6699FF"}
         fadeDistance={50}
         fadeStrength={1}
-        followCamera={false}
+        followCamera={true}
         infiniteGrid={true}
       />
     </>
@@ -277,18 +161,11 @@ function App() {
         initialPresence={{
           name,
           color,
-          selected: [],
-          selectedTransform: new Matrix4().toArray(),
+          selected: null,
+          selectedTransform: null,
         }}
         initialStorage={{
-          geometries: new LiveMap(),
-          materials: new LiveMap(),
-          object: new LiveMap(),
-          metadata: {
-            generator: "threejs",
-            type: "scene",
-            version: 1,
-          },
+          components: new LiveMap(),
         }}
       >
         <ClientSideSuspense fallback={<div>Loading…</div>}>
@@ -302,7 +179,12 @@ function App() {
                 top: 0,
                 left: 0,
               }}
+              raycaster={{
+                near: 0.01,
+                far: 100,
+              }}
               onPointerMissed={() => {
+                console.log("pointer missed");
                 // @ts-expect-error
                 transformControlRef.current?.deselect();
               }}

@@ -1,7 +1,7 @@
 import { useSelf } from "@liveblocks/react";
 import React, { useContext, useEffect } from "react";
-import { useAddObjects } from "./useObjects";
 import { useTransformControls } from "./TransformControlsProvider";
+import { useSceneState } from "./useSceneState";
 
 interface KeyboardControlsValue {
   enabled: boolean;
@@ -18,10 +18,8 @@ interface KeyboardControlsProviderProps {
 export const KeyboardControlsProvider = ({
   children,
 }: KeyboardControlsProviderProps): React.ReactElement => {
-  const selfSelected = useSelf((s) => s.presence.selected);
-  const { setSelectedObject } = useTransformControls();
-
-  const { deleteObject } = useAddObjects();
+  const { selectedId, setSelectedId } = useTransformControls();
+  const { deleteComponent } = useSceneState();
 
   useEffect(() => {
     const handler = (window.onkeydown = (e) => {
@@ -30,9 +28,9 @@ export const KeyboardControlsProvider = ({
         case "Delete":
           // deselect object so that transform controls
           // doesn't complain when object is removed from scene
-          setSelectedObject(undefined);
-          // @ts-expect-error
-          deleteObject(selfSelected);
+          setSelectedId(null);
+          if (!selectedId) return;
+          deleteComponent(selectedId);
           break;
         default:
           // console.log(e.key);
@@ -43,7 +41,7 @@ export const KeyboardControlsProvider = ({
     return () => {
       window.removeEventListener("keydown", handler);
     };
-  }, [selfSelected]);
+  }, [selectedId]);
 
   return (
     <KeyboardControls.Provider
