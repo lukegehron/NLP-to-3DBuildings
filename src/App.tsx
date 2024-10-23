@@ -125,29 +125,32 @@ function App() {
   const name = funName();
   const color = stringToColor(name);
 
-  const [room, _setRoom] = useState(
-    window.location.pathname.split("/").pop() || roomName()
-  );
+  const [room, _setRoom] = useState(() => {
+    const path = window.location.pathname;
+    const roomPath = path.replace(/^\/buildosaur\/?/, "");
+    return roomPath || roomName();
+  });
 
   const navigateHandler = useCallback(() => {
-    const roomName = window.location.pathname.split("/").pop();
-    if (roomName) {
-      _setRoom(roomName);
+    const path = window.location.pathname;
+    const roomPath = path.replace(/^\/buildosaur\/?/, "");
+    if (roomPath) {
+      _setRoom(roomPath);
     }
   }, []);
 
   useEffect(() => {
     window.addEventListener("popstate", navigateHandler);
-
     return () => {
       window.removeEventListener("popstate", navigateHandler);
     };
   }, [navigateHandler]);
 
   useEffect(() => {
-    const currRoomName = window.location.pathname.split("/").pop();
-    if (!currRoomName) {
-      window.history.pushState({}, "", room);
+    const path = window.location.pathname;
+    const roomPath = path.replace(/^\/buildosaur\/?/, "");
+    if (!roomPath) {
+      window.history.pushState({}, "", `/buildosaur/${room}`);
     }
   }, [room]);
 
