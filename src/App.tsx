@@ -26,7 +26,7 @@ import { KeyboardControlsProvider } from "./hooks/KeyboardControlsProvder";
 import { useSceneState } from "./hooks/useSceneState";
 import { ComponentRegistry } from "./elements/ComponentRegistry";
 import { useTransformState } from "./hooks/useTransformState";
-import { SceneComponent } from "./types";
+import { SceneComponentData } from "./types";
 
 const SceneNode = ({ node }: { node: any }) => {
   // @ts-expect-error
@@ -49,7 +49,7 @@ const SceneNode = ({ node }: { node: any }) => {
         setSelectedId(node.id);
       }}
     >
-      {node.children?.map((child: SceneComponent) => (
+      {node.children?.map((child: SceneComponentData) => (
         <SceneNode key={child.id} node={child} />
       ))}
     </Component>

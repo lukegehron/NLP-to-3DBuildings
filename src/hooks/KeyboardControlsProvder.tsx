@@ -1,11 +1,4 @@
-import {
-  useCanRedo,
-  useCanUndo,
-  useHistory,
-  useRedo,
-  useSelf,
-  useUndo,
-} from "@liveblocks/react";
+import { useRedo, useUndo } from "@liveblocks/react";
 import React, { useContext, useEffect } from "react";
 import { useTransformControls } from "./TransformControlsProvider";
 import { useSceneState } from "./useSceneState";

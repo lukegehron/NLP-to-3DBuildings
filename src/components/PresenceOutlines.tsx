@@ -1,7 +1,6 @@
-import { useEffect } from "react";
 import { Outlines } from "./OutlinedObject";
 
-import { useEditComment, useOthersMapped } from "@liveblocks/react";
+import { useOthersMapped } from "@liveblocks/react";
 
 export const PresenceOutlines = () => {
   const presenceData = useOthersMapped((other) => ({
