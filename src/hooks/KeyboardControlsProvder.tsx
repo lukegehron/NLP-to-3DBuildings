@@ -1,4 +1,11 @@
-import { useSelf } from "@liveblocks/react";
+import {
+  useCanRedo,
+  useCanUndo,
+  useHistory,
+  useRedo,
+  useSelf,
+  useUndo,
+} from "@liveblocks/react";
 import React, { useContext, useEffect } from "react";
 import { useTransformControls } from "./TransformControlsProvider";
 import { useSceneState } from "./useSceneState";
@@ -21,9 +28,24 @@ export const KeyboardControlsProvider = ({
   const { selectedId, setSelectedId } = useTransformControls();
   const { deleteComponent } = useSceneState();
 
+  const undo = useUndo();
+  const redo = useRedo();
+
   useEffect(() => {
     const handler = (window.onkeydown = (e) => {
       switch (e.key) {
+        case "z":
+          if (e.ctrlKey || e.metaKey) {
+            if (e.shiftKey) {
+              console.log("Shift + Ctrl + Z");
+              redo();
+            } else {
+              console.log("Ctrl + Z");
+              undo();
+            }
+          }
+
+          break;
         case "Backspace":
         case "Delete":
           // deselect object so that transform controls

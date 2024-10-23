@@ -1,6 +1,8 @@
-import { type EulerTuple } from "three";
+import { LiveObject } from "@liveblocks/client";
+import { EulerOrder } from "three";
 
 export type Vector3 = [number, number, number];
+export type EulerTuple = [number, number, number, EulerOrder];
 
 export type Matrix4 = [
   number,
@@ -21,16 +23,28 @@ export type Matrix4 = [
   number
 ];
 
+type LsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Vector3
+  | EulerTuple
+  | { [key: string]: LsonValue }
+  | Array<LsonValue>;
+
 export type ComponentProps = {
-  position?: Vector3;
-  rotation?: EulerTuple;
-  scale?: Vector3;
-  [key: string]: any;
+  position: Vector3;
+  rotation: EulerTuple;
+  scale: Vector3;
+  [key: string]: LsonValue;
 };
 
-export type SceneComponent = {
+export type SceneComponentData = {
   id: string;
   parentId?: string;
   type: string;
   props: ComponentProps;
 };
+
+export type SceneComponent = LiveObject<SceneComponentData>;

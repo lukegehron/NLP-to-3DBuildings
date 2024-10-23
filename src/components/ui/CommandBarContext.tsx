@@ -8,6 +8,7 @@ import {
 } from "./CommandBar";
 import { useSceneState } from "../../hooks/useSceneState";
 import { randomColor } from "../../utils/randomColor";
+import { Box } from "react-bootstrap-icons";
 
 interface CommandBarState {
   foo?: string;
@@ -72,22 +73,22 @@ export const CommandBarProvider = ({
         <CommandSeparator />
         <CommandList>
           <CommandItem
-            key={"create-wbeam"}
+            key={"create-box"}
             onSelect={() => {
               addComponent({
                 type: "Box",
                 props: {
                   color: randomColor(),
                   position: [0, 3, 0],
-                  width: 10,
-                  height: 10,
+                  width: 1,
+                  height: 1,
                   length: 10,
                 },
               });
             }}
-            className="hover:bg-gray-100 p-2 rounded-md"
+            className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
           >
-            Add Box
+            <Box /> Add Box
           </CommandItem>
           <CommandItem
             key={"create-wbeam"}
@@ -100,9 +101,9 @@ export const CommandBarProvider = ({
                 },
               });
             }}
-            className="hover:bg-gray-100 p-2 rounded-md"
+            className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
           >
-            Add WBeam
+            <Box /> Add Wide Flange Beam
           </CommandItem>
         </CommandList>
       </CommandDialog>

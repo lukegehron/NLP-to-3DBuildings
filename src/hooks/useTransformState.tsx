@@ -39,7 +39,7 @@ export const useTransformState = (uuid: string) => {
       const scale = component.props.scale;
       return [position, rotation, scale];
     }
-  }, [uuid, selTransform]);
+  }, [component, selTransform]);
 
   return {
     position,

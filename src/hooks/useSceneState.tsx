@@ -1,7 +1,7 @@
 import { LiveObject } from "@liveblocks/client";
 import { useMutation, useStorage } from "@liveblocks/react";
 import { v4 as uuidv4 } from "uuid";
-import { ComponentProps, SceneComponent } from "../types";
+import { ComponentProps, SceneComponentData } from "../types";
 
 export const useSceneState = () => {
   // Read the flat component map from storage
@@ -12,7 +12,7 @@ export const useSceneState = () => {
     const components = root.components;
     if (!components) return null;
 
-    const buildTree = (parentId?: string): SceneComponent[] => {
+    const buildTree = (parentId?: string): SceneComponentData[] => {
       return Array.from(components.entries())
         .filter(([_, component]) => component.parentId === parentId)
         .map(([id, component]) => ({
@@ -47,7 +47,7 @@ export const useSceneState = () => {
           id,
           type,
           parentId,
-          props: new LiveObject(props),
+          props,
         })
       );
       return id;
@@ -70,7 +70,8 @@ export const useSceneState = () => {
       const component = storage.get("components")?.get(id);
       if (component) {
         Object.entries(props).forEach(([key, value]) => {
-          component.get("props").set(key, value);
+          // @ts-expect-error
+          component.get("props")[key] = value;
         });
       }
     },

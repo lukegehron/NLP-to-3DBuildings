@@ -26,6 +26,7 @@ import { KeyboardControlsProvider } from "./hooks/KeyboardControlsProvder";
 import { useSceneState } from "./hooks/useSceneState";
 import { ComponentRegistry } from "./elements/ComponentRegistry";
 import { useTransformState } from "./hooks/useTransformState";
+import { SceneComponent } from "./types";
 
 const SceneNode = ({ node }: { node: any }) => {
   // @ts-expect-error
@@ -48,7 +49,7 @@ const SceneNode = ({ node }: { node: any }) => {
         setSelectedId(node.id);
       }}
     >
-      {node.children?.map((child) => (
+      {node.children?.map((child: SceneComponent) => (
         <SceneNode key={child.id} node={child} />
       ))}
     </Component>
@@ -80,8 +81,8 @@ const Scene = () => {
       {isOrtho ? (
         <OrthographicCamera
           makeDefault
-          position={[5, 5, 5]}
-          zoom={50}
+          position={[-10, 30, -10]}
+          zoom={20}
           near={-100}
         />
       ) : (
