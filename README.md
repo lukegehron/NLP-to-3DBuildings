@@ -1,50 +1,93 @@
-# React + TypeScript + Vite
+# 🦖 Buildosaur
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A collaborative 3D parametric modeling playground built for [AEC Tech 2024](https://www.thorntontomasetti.com/aec-tech). Think Figma, but for BIM.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🤝 Real-time collaborative 3D modeling
+- 🧱 Parametric components with live updates
+- 🎨 Interactive transform controls
+- 🔍 Command palette for quick actions
+- 👥 Multi-user presence and interaction
+- 🎮 Orthographic and perspective camera modes
 
-## Expanding the ESLint configuration
+## 🚀 Quick Start
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+```bash
+# Clone the repository
+git clone https://github.com/ngimbal/buildosaur.git
 
-- Configure the top-level `parserOptions` property like this:
+# Install dependencies
+cd buildosaur
+npm install
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# Start the development server
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Visit `http://localhost:5173` to see your local instance.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## 🛠️ Tech Stack
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+- **Frontend Framework**: React
+- **3D Graphics**: React Three Fiber + Three.js
+- **Multiplayer**: Liveblocks
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Type Safety**: TypeScript
+
+## 🏗️ Architecture
+
+Buildosaur is built on four core principles:
+
+1. **Composable 3D Graphics**: Using React Three Fiber for declarative 3D rendering, we can create complex 3D scenes using familiar React patterns. Components are built as pure functions that can be easily composed and reused.
+
+2. **Real-time Collaboration**: Powered by Liveblocks, the application maintains a synchronized state across all connected clients. The collaboration system handles presence, cursors, and real-time updates to the 3D model with minimal configuration.
+
+3. **Extensible Component System**: A custom component registry allows for easy addition of new parametric elements. Each component is self-contained with its own controls and update logic, making the system highly extensible.
+
+4. **Simple Deployment**: For workshop purposes, the application is designed as a single-page application (SPA) hosted on GitHub Pages. This eliminates the need for complex backend infrastructure while still providing full collaborative functionality through Liveblocks.
+
+## 🧩 Creating Custom Components
+
+```tsx
+// Example component definition
+export const BoxDefinition: BaseComponentDefinition = {
+  component: Box,
+  getControls: (id, updateComponent) => ({
+    dimensions: folder({
+      width: { value: 1, min: 0.1, max: 10, step: 0.1 },
+      height: { value: 1, min: 0.1, max: 10, step: 0.1 },
+      length: { value: 10, min: 0.1, max: 20, step: 0.1 },
+    }),
+  }),
+};
 ```
+
+## 🌟 Motivation
+
+Built for AEC Tech 2024, Buildosaur demonstrates how modern web technologies make it easier than ever to create:
+
+- **Shareable, composable, reactive 3D graphics** using React and React Three Fiber
+- **Real-time collaborative experiences** using tools like Liveblocks
+- **Rich, interactive interfaces** with modern UI frameworks
+
+## 📝 Workshop Context
+
+This project was created for the "Figma for BIM in an Afternoon" workshop at AEC Tech 2024, hosted by Thornton Tomasetti. The workshop demonstrates how to build and deploy a collaborative 3D parametric modeling application using modern web technologies.
+
+## 🤝 Contributing
+
+Contributions are welcome. To contribute:
+
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
+
+## 📄 License
+
+MIT © Nicolas Schmidt 2024
+
+---
+
+Built with ❤️ for AEC Tech 2024
