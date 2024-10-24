@@ -18,13 +18,13 @@ import {
   TransformControlsProvider,
   TransformControlsProviderRef,
 } from "./providers/TransformControlsProvider";
-import { funName, stringToColor } from "./utils/nameGenerator";
 import { PresenceOutlines } from "./components/PresenceOutlines";
 import { CommandBarProvider } from "./providers/CommandBarProvider";
 import { LiveMap } from "@liveblocks/client";
 import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder";
 import { useRoomRoute } from "./hooks/useRoomRoute";
 import { SceneRenderer } from "./components/SceneRenderer";
+import { useName } from "./hooks/useName";
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
@@ -81,8 +81,7 @@ function App() {
   // Reference to the imperative api provided by TransformControlsProvider
   const transformControlRef = useRef<TransformControlsProviderRef>();
 
-  const name = funName();
-  const color = stringToColor(name);
+  const { name, color } = useName();
 
   const setMode = useCallback((mode: "rotate" | "scale" | "translate") => {
     transformControlRef.current?.setMode(mode);
@@ -91,7 +90,7 @@ function App() {
   return (
     <LiveblocksProvider
       publicApiKey={
-        "pk_dev_htKIDdGmC1jqqOdbfluugd6BlHq-qrzbT5z45Mhmn7Xq-85gv_BrSlgizxlTTyDt"
+        "pk_prod_v085z_GpDxTg8PAtMKyrha2aU098ApZq2Bs3QOEGlChBeQjejFXsG3mDxVoVfOxA"
       }
     >
       <RoomProvider
