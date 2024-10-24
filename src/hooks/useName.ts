@@ -8,8 +8,9 @@ const DEFAULT_NAME = funName();
 
 export const useName = () => {
   const [name, _setName] = useState(() => {
-    if (localStorage.getItem(NAME_KEY)) {
-      return localStorage.getItem(NAME_KEY);
+    const storedName = localStorage.getItem(NAME_KEY);
+    if (storedName) {
+      return storedName;
     } else {
       localStorage.setItem(NAME_KEY, DEFAULT_NAME);
       return DEFAULT_NAME;
@@ -22,8 +23,9 @@ export const useName = () => {
   };
 
   const [color, _setColor] = useState(() => {
-    if (localStorage.getItem(COLOR_KEY)) {
-      return localStorage.getItem(COLOR_KEY);
+    const storedColor = localStorage.getItem(COLOR_KEY);
+    if (storedColor) {
+      return storedColor;
     } else {
       const newColor = stringToColor(DEFAULT_NAME);
       localStorage.setItem(COLOR_KEY, newColor);
