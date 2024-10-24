@@ -3,19 +3,38 @@ import { useSceneState } from "../hooks/useSceneState";
 import { ComponentRegistry } from "../elements/ComponentRegistry";
 import { useTransformState } from "../hooks/useTransformState";
 import { SceneComponentData } from "../types";
+import { useControls } from "leva";
 
 const SceneNode = ({ node }: { node: any }) => {
-  // @ts-expect-error
-  const Component = ComponentRegistry[node.type];
+  const registry = ComponentRegistry[node.type];
 
+  if (!registry) {
+    throw new Error(`Component type "${node.type}" not found in registry.`);
+  }
+
+  const { component: Component, getControls, defaultProps } = registry;
+  const { updateComponent } = useSceneState();
+
+  // Only create controls if they're defined and we're the selected node
   const { setSelectedId } = useTransformControls();
-
   const { position, rotation, scale } = useTransformState(node.id);
 
-  if (!Component) return null;
+  // Only show controls when this node is selected
+  const nodeControls = useControls(
+    node.type,
+    // Generate controls with the update function injected
+    getControls(node.id, updateComponent),
+    {
+      collapsed: true,
+    }
+  );
+
+  if (!registry) return null;
 
   return (
     <Component
+      {...defaultProps}
+      {...nodeControls}
       {...node.props}
       position={position}
       rotation={rotation}

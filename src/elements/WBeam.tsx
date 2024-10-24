@@ -1,4 +1,10 @@
 import { Shape } from "three";
+import {
+  BaseComponentDefinition,
+  createControlHandlers,
+  UpdateFunction,
+} from "./ComponentRegistry";
+import { folder } from "leva";
 
 const getWBeamProfile = ({
   depth = 1,
@@ -42,8 +48,10 @@ const getWBeamProfile = ({
 };
 
 export const WBeam = ({
+  depth = 1,
   width = 1,
-  height = 1,
+  webThickness = 0.1,
+  flangeThickness = 0.1,
   length = 10,
   color = "orange",
   ...props
@@ -51,9 +59,77 @@ export const WBeam = ({
   return (
     <mesh {...props} type="WBeam">
       <extrudeGeometry
-        args={[getWBeamProfile({}), { depth: length, bevelEnabled: false }]}
+        args={[
+          getWBeamProfile({ depth, width, webThickness, flangeThickness }),
+          { depth: length, bevelEnabled: false },
+        ]}
       />
       <meshStandardMaterial color={color} />
     </mesh>
   );
+};
+
+export const WBeamDefinition: BaseComponentDefinition = {
+  component: WBeam,
+  getControls: (id: string, updateComponent: UpdateFunction) => ({
+    dimensions: folder({
+      width: {
+        value: 1,
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        label: "Width",
+        ...createControlHandlers(id, updateComponent, "width"),
+      },
+      height: {
+        value: 1,
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        label: "Height",
+        ...createControlHandlers(id, updateComponent, "height"),
+      },
+      length: {
+        value: 10,
+        min: 1,
+        max: 50,
+        step: 1,
+        label: "Length",
+        ...createControlHandlers(id, updateComponent, "length"),
+      },
+    }),
+    appearance: folder({
+      color: {
+        value: "orange",
+        label: "Color",
+        ...createControlHandlers(id, updateComponent, "color"),
+      },
+    }),
+    profile: folder({
+      webThickness: {
+        value: 0.1,
+        min: 0.01,
+        max: 0.5,
+        step: 0.01,
+        label: "Web Thickness",
+        ...createControlHandlers(id, updateComponent, "webThickness"),
+      },
+      flangeThickness: {
+        value: 0.1,
+        min: 0.01,
+        max: 0.5,
+        step: 0.01,
+        label: "Flange Thickness",
+        ...createControlHandlers(id, updateComponent, "flangeThickness"),
+      },
+    }),
+  }),
+  defaultProps: {
+    width: 1,
+    height: 1,
+    length: 10,
+    color: "orange",
+    webThickness: 0.1,
+    flangeThickness: 0.1,
+  },
 };

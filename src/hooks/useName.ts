@@ -38,8 +38,6 @@ export const useName = () => {
     _setColor(newColor);
   };
 
-  console.log({ name, color });
-
   return {
     name,
     setName,

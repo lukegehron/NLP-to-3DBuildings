@@ -25,6 +25,7 @@ import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder";
 import { useRoomRoute } from "./hooks/useRoomRoute";
 import { SceneRenderer } from "./components/SceneRenderer";
 import { useName } from "./hooks/useName";
+import { Leva } from "leva";
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
@@ -44,7 +45,7 @@ const Scene = () => {
         <PerspectiveCamera makeDefault position={[5, 9, 5]} fov={50} />
       )}
       <Environment preset="city" />
-      <GizmoHelper alignment="top-right" margin={[80, 80]}>
+      <GizmoHelper alignment="top-left" margin={[80, 80]}>
         <GizmoViewcube />
       </GizmoHelper>
       <ContactShadows
@@ -105,7 +106,13 @@ function App() {
           components: new LiveMap(),
         }}
       >
-        <ClientSideSuspense fallback={<div>Loading…</div>}>
+        <ClientSideSuspense
+          fallback={
+            <div className="flex justify-center items-center w-screen h-screen">
+              Loading…
+            </div>
+          }
+        >
           <CommandBarProvider setMode={setMode}>
             <Canvas
               style={{
@@ -132,6 +139,11 @@ function App() {
             </Canvas>
           </CommandBarProvider>
         </ClientSideSuspense>
+        <Leva
+          titleBar={{
+            title: "Buildosaur",
+          }}
+        />
       </RoomProvider>
     </LiveblocksProvider>
   );

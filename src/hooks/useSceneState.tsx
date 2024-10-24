@@ -69,6 +69,7 @@ export const useSceneState = () => {
         props: Partial<ComponentProps>;
       }
     ) => {
+      console.log({ id, props });
       const component = storage.get("components")?.get(id);
       if (component) {
         component.get("props").update(props);
