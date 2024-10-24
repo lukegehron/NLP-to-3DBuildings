@@ -1,5 +1,6 @@
 import { WBeamDefinition } from "./WBeam";
 import { BoxDefinition } from "./Box";
+import { TableDefinition } from "./Table";
 import { Schema } from "leva/dist/declarations/src/types";
 import { ComponentProps } from "../types";
 
@@ -24,6 +25,7 @@ export type ComponentRegistryType = Record<string, BaseComponentDefinition>;
 export const ComponentRegistry: ComponentRegistryType = {
   WBeam: WBeamDefinition,
   Box: BoxDefinition,
+  Table: TableDefinition,
 };
 
 export const createControlHandlers = (

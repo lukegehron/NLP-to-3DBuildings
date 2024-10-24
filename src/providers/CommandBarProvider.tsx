@@ -151,6 +151,15 @@ export const CommandBarProvider = ({
             >
               <Box /> Add Wide Flange Beam
             </CommandItem>
+            <CommandItem
+              key={"create-table"}
+              onSelect={() => {
+                addComponent({ type: "Table" });
+                setOpen(false);
+              }}
+            >
+              <Box /> Add Table
+            </CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>
