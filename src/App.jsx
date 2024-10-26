@@ -28,7 +28,12 @@ import { SceneRenderer } from "./components/SceneRenderer.jsx";
 import { useName } from "./hooks/useName.js";
 import { Leva } from "leva";
 import { Building } from "./elements/Building.jsx";
-import { buildingDataAtom } from "./utils/atom";
+import {
+  buildingDataAtom,
+  scaleXAtom,
+  scaleYAtom,
+  scaleZAtom,
+} from "./utils/atom";
 import { useAtom } from "jotai";
 import Chatbox from "./components/Chatbox.jsx";
 
@@ -187,6 +192,24 @@ const Scene = () => {
 function App() {
   const room = useRoomRoute();
   const [buildingData, setBuildingData] = useAtom(buildingDataAtom);
+  const [scaleX, setScaleX] = useAtom(scaleXAtom);
+  const [scaleY, setScaleY] = useAtom(scaleYAtom);
+  const [scaleZ, setScaleZ] = useAtom(scaleZAtom);
+
+  const handleScaleXChange = (event) => {
+    const { name, value } = event.target;
+    setScaleX(parseFloat(value));
+  };
+
+  const handleScaleYChange = (event) => {
+    const { name, value } = event.target;
+    setScaleY(parseFloat(value));
+  };
+
+  const handleScaleZChange = (event) => {
+    const { name, value } = event.target;
+    setScaleZ(parseFloat(value));
+  };
 
   // Reference to the imperative api provided by TransformControlsProvider
   const transformControlRef = useRef();
@@ -296,7 +319,7 @@ function App() {
               /> */}
             </Canvas>
             {/* Chatbox Component */}
-            <Chatbox />
+            {/* <Chatbox /> */}
             <div className="absolute top-0 left-0 w-[300px] bg-black/50 pointer-events-none">
               <div className="pointer-events-auto p-4">
                 <label htmlFor="floorSlider" className="block text-white mb-2">
@@ -347,6 +370,47 @@ function App() {
                 <p className="text-white">
                   Building Offset: {buildingData?.building?.offset}
                 </p>
+                {/* scale x scale y scale z */}
+                <label htmlFor="scaleX" className="block text-white mb-2">
+                  Scale X:
+                </label>
+                <input
+                  id="scaleX"
+                  name="scaleX"
+                  type="range"
+                  min="0.1"
+                  max="2.0"
+                  step="0.01"
+                  value={scaleX || 0.3}
+                  onChange={handleScaleXChange}
+                />
+
+                <label htmlFor="scaleY" className="block text-white mb-2">
+                  Scale Z:
+                </label>
+                <input
+                  id="scaleY"
+                  name="scaleY"
+                  type="range"
+                  min="0.1"
+                  max="2.0"
+                  step="0.01"
+                  value={scaleY || 0.3}
+                  onChange={handleScaleYChange}
+                />
+                <label htmlFor="scaleZ" className="block text-white mb-2">
+                  Scale Y:
+                </label>
+                <input
+                  id="scaleZ"
+                  name="scaleZ"
+                  type="range"
+                  min="0.1"
+                  max="2.0"
+                  step="0.01"
+                  value={scaleZ || 0.3}
+                  onChange={handleScaleZChange}
+                />
               </div>
             </div>
           </CommandBarProvider>

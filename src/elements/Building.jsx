@@ -6,7 +6,12 @@ import {
 } from "./ComponentRegistry";
 import { Shape, Vector2 } from "three";
 import { useState, useEffect } from "react";
-import { buildingDataAtom } from "../utils/atom";
+import {
+  buildingDataAtom,
+  scaleXAtom,
+  scaleYAtom,
+  scaleZAtom,
+} from "../utils/atom";
 import { useAtom } from "jotai";
 
 // Import a clipper library. For this example, we'll use 'clipper-lib'
@@ -14,6 +19,10 @@ import clipperLib from "clipper-lib";
 
 export const Building = ({ color = "#cccccc", ...props }) => {
   const [buildingData] = useAtom(buildingDataAtom);
+  const [scaleX] = useAtom(scaleXAtom);
+  const [scaleY] = useAtom(scaleYAtom);
+  const [scaleZ] = useAtom(scaleZAtom);
+
   const [buildingShape, setBuildingShape] = useState(null);
   const [floorShapes, setFloorShapes] = useState([]);
 
@@ -21,9 +30,11 @@ export const Building = ({ color = "#cccccc", ...props }) => {
     if (!buildingData || !buildingData.building) return;
 
     const { geoJSON, floors } = buildingData.building;
+    console.log(buildingData.building);
 
     // Process building shape
     const buildingCoords = processGeometry(geoJSON[0]);
+    console.log(buildingCoords);
     const buildingShape = createShapeFromCoords(buildingCoords);
     setBuildingShape(buildingShape);
 
@@ -36,6 +47,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
   }, [buildingData]);
 
   const processGeometry = (feature) => {
+    console.log(feature);
     if (feature.geometry.type === "Polygon") {
       return feature.geometry.coordinates[0];
     } else if (feature.geometry.type === "LineString") {
@@ -66,6 +78,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
 
   const createShapeFromCoords = (coords) => {
     const shape = new Shape();
+    console.log(coords);
     shape.moveTo(coords[0][0], coords[0][1]);
     coords.slice(1).forEach((coord) => shape.lineTo(coord[0], coord[1]));
     return shape;
@@ -75,7 +88,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
 
   return (
     <>
-      <group {...props} scale={[0.3, 0.3, 0.3]} type="Building">
+      <group {...props} scale={[scaleX, scaleY, scaleZ]} type="Building">
         {/* Building outline */}
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
           <extrudeGeometry
