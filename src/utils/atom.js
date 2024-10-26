@@ -8,6 +8,7 @@ export const buildingDataAtom = atom({
     id: "building_001",
     name: "Main Office Building",
     type: "polygon",
+    floorHeight: 3,
     geoJSON: [
       {
         type: "Feature",

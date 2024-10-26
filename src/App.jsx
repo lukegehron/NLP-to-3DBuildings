@@ -98,34 +98,40 @@ function App() {
     return floorNames[index] || `Floor ${index + 1}`;
   };
 
-  const handleFloorChange = (event) => {
-    const newFloorCount = parseInt(event.target.value, 10);
+  const handleBuildingChange = (event) => {
+    const { name, value } = event.target;
     setBuildingData((prevData) => {
       const updatedBuilding = { ...prevData.building };
-      const currentFloors = updatedBuilding.floors || [];
 
-      if (newFloorCount > currentFloors.length) {
-        // Duplicate the last floor if available, otherwise create a new floor
-        const floorToDuplicate =
-          currentFloors[currentFloors.length - 1] ||
-          {
-            /* default floor structure */
-          };
-        updatedBuilding.floors = [
-          ...currentFloors,
-          ...Array(newFloorCount - currentFloors.length)
-            .fill()
-            .map((_, index) => ({
-              ...floorToDuplicate,
-              id: `floor_${currentFloors.length + index + 1}`,
-              name: getFloorName(currentFloors.length + index),
-            })),
-        ];
-      } else {
-        updatedBuilding.floors = currentFloors.slice(0, newFloorCount);
+      if (name === "floorCount") {
+        const newFloorCount = parseInt(value, 10);
+        const currentFloors = updatedBuilding.floors || [];
+
+        if (newFloorCount > currentFloors.length) {
+          // Duplicate the last floor if available, otherwise create a new floor
+          const floorToDuplicate =
+            currentFloors[currentFloors.length - 1] ||
+            {
+              /* default floor structure */
+            };
+          updatedBuilding.floors = [
+            ...currentFloors,
+            ...Array(newFloorCount - currentFloors.length)
+              .fill()
+              .map((_, index) => ({
+                ...floorToDuplicate,
+                id: `floor_${currentFloors.length + index + 1}`,
+                name: getFloorName(currentFloors.length + index),
+              })),
+          ];
+        } else {
+          updatedBuilding.floors = currentFloors.slice(0, newFloorCount);
+        }
+      } else if (name === "floorHeight") {
+        updatedBuilding.floorHeight = parseFloat(value);
       }
-      console.log(updatedBuilding);
 
+      console.log(updatedBuilding);
       return { ...prevData, building: updatedBuilding };
     });
   };
@@ -192,19 +198,40 @@ function App() {
                 </label>
                 <input
                   id="floorSlider"
+                  name="floorCount"
                   type="range"
                   min="1"
                   max="5"
                   value={buildingData?.building?.floors?.length || 1}
-                  onChange={handleFloorChange}
+                  onChange={handleBuildingChange}
                   className="w-full"
                 />
                 <p className="text-white">
                   Current Floors: {buildingData?.building?.floors?.length || 0}
                 </p>
+
+                <label
+                  htmlFor="floorHeightSlider"
+                  className="block text-white mb-2 mt-4"
+                >
+                  Floor Height:
+                </label>
+                <input
+                  id="floorHeightSlider"
+                  name="floorHeight"
+                  type="range"
+                  min="2"
+                  max="5"
+                  step="0.1"
+                  value={buildingData?.building?.floorHeight || 3}
+                  onChange={handleBuildingChange}
+                  className="w-full"
+                />
                 <p className="text-white">
-                  Floor Height: {buildingData?.building?.height}
+                  Floor Height:{" "}
+                  {buildingData?.building?.floorHeight?.toFixed(1) || 3} m
                 </p>
+
                 <p className="text-white">
                   Building Name: {buildingData?.building?.name}
                 </p>

@@ -82,7 +82,9 @@ export const Building = ({ color = "#cccccc", ...props }) => {
             args={[
               buildingShape,
               {
-                depth: buildingData.building.height || 12,
+                depth:
+                  buildingData.building.floorHeight *
+                  buildingData.building.floors.length,
                 bevelEnabled: false,
               },
             ]}
@@ -92,7 +94,10 @@ export const Building = ({ color = "#cccccc", ...props }) => {
 
         {/* Floors */}
         {buildingData.building.floors.map((floor, index) => (
-          <group key={floor.id} position={[0, index * (floor.height || 3), 0]}>
+          <group
+            key={floor.id}
+            position={[0, index * (buildingData.building.floorHeight || 3), 0]}
+          >
             <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
               <extrudeGeometry
                 args={[floorShapes[index], { depth: 0.1, bevelEnabled: false }]}
@@ -114,7 +119,10 @@ export const Building = ({ color = "#cccccc", ...props }) => {
                   <extrudeGeometry
                     args={[
                       spaceShape,
-                      { depth: floor.height || 3, bevelEnabled: false },
+                      {
+                        depth: buildingData.building.floorHeight - 0.2 || 2.9,
+                        bevelEnabled: false,
+                      },
                     ]}
                   />
                   <meshStandardMaterial
