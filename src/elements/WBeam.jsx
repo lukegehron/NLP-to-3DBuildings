@@ -1,5 +1,5 @@
 import { Shape } from "three";
-import { createControlHandlers } from "./ComponentRegistry";
+import { createComponentFromJson } from "./genericJsonImport";
 import { folder } from "leva";
 import * as THREE from "three";
 import { useRef, useMemo } from "react";
@@ -85,65 +85,7 @@ const getWBeamProfile = ({
   return shape;
 };
 
-export const WBeam = (props) => {
-  const { geometry, material } = wBeamDefinition;
-  const meshRef = useRef();
+const { Component: WBeam, ComponentDefinition: WBeamDefinition } =
+  createComponentFromJson(wBeamDefinition);
 
-  // Create geometry
-  const geometryInstance = useMemo(() => {
-    const GeometryClass = THREE[geometry.type];
-    const shape = geometry.args[0](props);
-    const options = Object.fromEntries(
-      Object.entries(geometry.args[1]).map(([key, value]) => [
-        key,
-        props[value] || value,
-      ])
-    );
-    return new GeometryClass(shape, options);
-  }, [props]);
-
-  // Create material
-  const materialProps = Object.fromEntries(
-    Object.entries(material.props).map(([key, value]) => [key, props[value]])
-  );
-  const materialInstance = useMemo(() => {
-    const MaterialClass = THREE[material.type];
-    return new MaterialClass(materialProps);
-  }, [JSON.stringify(materialProps)]);
-
-  return (
-    <mesh
-      ref={meshRef}
-      {...props}
-      type="WBeam"
-      geometry={geometryInstance}
-      material={materialInstance}
-    />
-  );
-};
-
-export const WBeamDefinition = {
-  component: WBeam,
-  getControls: (id, updateComponent) => {
-    const controls = {};
-
-    Object.entries(wBeamDefinition.controls).forEach(
-      ([folderName, folderControls]) => {
-        controls[folderName] = folder(
-          Object.entries(folderControls).reduce((acc, [key, config]) => {
-            acc[key] = {
-              value: config.value,
-              label: key.charAt(0).toUpperCase() + key.slice(1),
-              ...config,
-              ...createControlHandlers(id, updateComponent, key),
-            };
-            return acc;
-          }, {})
-        );
-      }
-    );
-
-    return controls;
-  },
-  defaultProps: wBeamDefinition.defaultProps,
-};
+export { WBeam, WBeamDefinition };
