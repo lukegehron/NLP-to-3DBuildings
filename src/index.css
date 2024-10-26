@@ -70,3 +70,11 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Chatbox.css */
+.chatbox {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+}
