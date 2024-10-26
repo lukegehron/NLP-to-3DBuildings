@@ -89,12 +89,16 @@ const Chatbox = () => {
 
 const styles = {
   chatboxContainer: {
+    color: "#fefefe",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace",
+    fontSize: "14px",
     position: "absolute",
-    bottom: "20px",
-    right: "20px",
-    width: "300px",
+    bottom: "10px",
+    right: "10px",
+    width: "280px",
     maxHeight: "400px",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    // backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "#181c20",
     borderRadius: "8px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
     display: "flex",
@@ -121,6 +125,7 @@ const styles = {
     border: "none",
     outline: "none",
     fontSize: "14px",
+    backgroundColor: "#535760",
   },
   sendButton: {
     padding: "10px 15px",
