@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -36,6 +36,9 @@ import {
 } from "./utils/atom";
 import { useAtom } from "jotai";
 import Chatbox from "./components/Chatbox.jsx";
+// import { loadOBJModel } from "./utils/file.js";
+import { useLoader } from "@react-three/fiber";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 const buildingData = {
   building: {
@@ -142,6 +145,17 @@ const buildingData = {
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
+  const objUrl =
+    "https://raw.githubusercontent.com/mrdoob/three.js/refs/heads/dev/examples/models/obj/tree.obj";
+  const obj = useLoader(OBJLoader, objUrl);
+
+  useEffect(() => {
+    if (obj) {
+      obj.scale.set(10, 10, 10);
+      obj.position.set(0, 0, 0);
+    }
+    console.log(obj);
+  }, [obj]);
 
   return (
     <>
@@ -185,6 +199,7 @@ const Scene = () => {
         followCamera={true}
         infiniteGrid={true}
       />
+      {obj && <primitive object={obj} />}
     </>
   );
 };
@@ -319,7 +334,7 @@ function App() {
               /> */}
             </Canvas>
             {/* Chatbox Component */}
-            {/* <Chatbox /> */}
+            <Chatbox />
             <div className="absolute top-0 left-0 w-[300px] bg-black/50 pointer-events-none">
               <div className="pointer-events-auto p-4">
                 <label htmlFor="floorSlider" className="block text-white mb-2">
