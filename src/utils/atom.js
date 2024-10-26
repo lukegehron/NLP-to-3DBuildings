@@ -7,6 +7,7 @@ export const buildingDataAtom = atom({
   building: {
     id: "building_001",
     name: "Main Office Building",
+    type: "polygon",
     geoJSON: [
       {
         type: "Feature",
@@ -31,23 +32,22 @@ export const buildingDataAtom = atom({
       {
         id: "floor_1",
         name: "Ground Floor",
+        type: "linestring",
         geoJSON: [
           {
             type: "Feature",
             geometry: {
-              type: "Polygon",
+              type: "LineString",
               coordinates: [
-                [
-                  [0, 0],
-                  [100, 0],
-                  [100, 100],
-                  [0, 100],
-                  [0, 0],
-                ],
+                [0, 0],
+                [100, 0],
+                [100, 100],
+                // [0, 100],
               ],
             },
             properties: {
               name: "Ground Floor Outline",
+              offset: 5, // Offset value in meters
             },
           },
         ],
@@ -105,3 +105,37 @@ export const buildingDataAtom = atom({
     ],
   },
 });
+
+// Function to process geometry based on type
+const processGeometry = (feature) => {
+  if (feature.geometry.type === "Polygon") {
+    return feature.geometry.coordinates[0];
+  } else if (feature.geometry.type === "LineString") {
+    const { coordinates } = feature.geometry;
+    const offset = feature.properties.offset || 0;
+    // Now this will work correctly with just start and end points
+    return createOffsetPolygon(coordinates, offset);
+  }
+  return [];
+};
+
+// Placeholder function for creating offset polygon
+// Replace this with actual clipper logic implementation
+const createOffsetPolygon = (coordinates, offset) => {
+  // Implement clipper logic here
+  // For now, we'll just return the original coordinates
+  return [...coordinates, coordinates[0]];
+};
+
+// Updated building component (pseudo-code)
+export const BuildingComponent = () => {
+  const [buildingData] = useAtom(buildingDataAtom);
+  const { building } = buildingData;
+
+  const processedCoordinates = building.geoJSON.map((feature) =>
+    processGeometry(feature)
+  );
+
+  // Render the building using processedCoordinates
+  // ...
+};
