@@ -10,7 +10,7 @@ const Chatbox = () => {
   // Access the room to perform storage updates
   const room = useRoom();
 
-  // Access the messages LiveList from Liveblocks storage
+  // Access the messages array from Liveblocks storage
   const messages = useStorage((root) => root.messages);
 
   // Mutation to initialize messages if it doesn't exist
@@ -35,10 +35,8 @@ const Chatbox = () => {
   const handleSend = () => {
     if (message.trim() === "") return;
 
-    if (messages) {
-      sendMessage(message);
-      setMessage("");
-    }
+    sendMessage(message);
+    setMessage("");
   };
 
   useEffect(() => {
@@ -46,13 +44,11 @@ const Chatbox = () => {
       initMessages();
     }
   }, [messages, initMessages]);
+
   // Scroll to the latest message when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  // Convert messages to an array for rendering
-  const messagesArray = messages ? messages.toArray() : [];
 
   // If storage is not loaded yet, show a loading state
   if (messages === null) {
@@ -62,7 +58,7 @@ const Chatbox = () => {
   return (
     <div style={styles.chatboxContainer}>
       <div style={styles.messagesContainer}>
-        {messagesArray.map((msg) => (
+        {messages.map((msg) => (
           <div key={msg.id} style={styles.message}>
             <strong>{msg.author}: </strong>
             <span>{msg.content}</span>
