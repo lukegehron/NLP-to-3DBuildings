@@ -8,8 +8,9 @@ import {
 export const Box = ({
   width = 1,
   height = 1,
-  length = 10,
+  length = 1,
   color = "orange",
+  scale = 1,
   ...props
 }) => {
   return (
@@ -41,12 +42,17 @@ export const BoxDefinition = {
         ...createControlHandlers(id, updateComponent, "height"),
       },
       length: {
-        value: 10,
+        value: 1,
         min: 0.1,
         max: 20,
         step: 0.1,
         label: "Length",
         ...createControlHandlers(id, updateComponent, "length"),
+      },
+      scale: {
+        value: 1,
+        label: "Scale",
+        ...createControlHandlers(id, updateComponent, "scale"),
       },
     }),
     appearance: folder({
@@ -60,7 +66,8 @@ export const BoxDefinition = {
   defaultProps: {
     width: 1,
     height: 1,
-    length: 10,
+    length: 1,
+    scale: 2,
     color: "orange",
   },
 };

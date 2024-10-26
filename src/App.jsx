@@ -27,6 +27,110 @@ import { useRoomRoute } from "./hooks/useRoomRoute.js";
 import { SceneRenderer } from "./components/SceneRenderer.jsx";
 import { useName } from "./hooks/useName.js";
 import { Leva } from "leva";
+import { Building } from "./elements/Building.jsx";
+
+const buildingData = {
+  building: {
+    id: "building_001",
+    name: "Main Office Building",
+    geoJSON: [
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [0, 0],
+              [100, 0],
+              [100, 100],
+              [0, 100],
+              [0, 0],
+            ],
+          ],
+        },
+        properties: {
+          name: "Main Office Building Footprint",
+        },
+      },
+    ],
+    floors: [
+      {
+        id: "floor_1",
+        name: "Ground Floor",
+        geoJSON: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [0, 0],
+                  [100, 0],
+                  [100, 100],
+                  [0, 100],
+                  [0, 0],
+                ],
+              ],
+            },
+            properties: {
+              name: "Ground Floor Outline",
+            },
+          },
+        ],
+        spaces: [
+          {
+            id: "space_101",
+            name: "Reception",
+            geoJSON: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "Polygon",
+                  coordinates: [
+                    [
+                      [0, 0],
+                      [20, 0],
+                      [20, 30],
+                      [0, 30],
+                      [0, 0],
+                    ],
+                  ],
+                },
+                properties: {
+                  name: "Reception Area",
+                },
+              },
+            ],
+          },
+          {
+            id: "space_102",
+            name: "Meeting Room 1",
+            geoJSON: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "Polygon",
+                  coordinates: [
+                    [
+                      [25, 0],
+                      [50, 0],
+                      [50, 25],
+                      [25, 25],
+                      [25, 0],
+                    ],
+                  ],
+                },
+                properties: {
+                  name: "Meeting Room 1",
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
@@ -45,7 +149,7 @@ const Scene = () => {
       ) : (
         <PerspectiveCamera makeDefault position={[5, 9, 5]} fov={50} />
       )}
-      <Environment preset="city" />
+      {/* <Environment preset="city" /> */}
       <GizmoHelper alignment="top-left" margin={[80, 80]}>
         <GizmoViewcube />
       </GizmoHelper>
@@ -132,6 +236,7 @@ function App() {
                 transformControlRef.current?.deselect();
               }}
             >
+              <ambientLight />
               <TransformControlsProvider ref={transformControlRef}>
                 <Scene />
               </TransformControlsProvider>
@@ -140,6 +245,11 @@ function App() {
                 <meshBasicMaterial />
               </mesh>
               <OrbitControls /> */}
+              <Building
+                rotation={[-Math.PI / 2, 0, 0]}
+                scale={[0.2, 0.2, 0.2]}
+                buildingData={buildingData}
+              />
             </Canvas>
           </CommandBarProvider>
         </ClientSideSuspense>

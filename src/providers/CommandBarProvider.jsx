@@ -104,7 +104,7 @@ export const CommandBarProvider = ({ setMode, children }) => {
                     scale: [1, 1, 1],
                     width: 1,
                     height: 1,
-                    length: 10,
+                    length: 1,
                   },
                 });
                 setOpen(false);

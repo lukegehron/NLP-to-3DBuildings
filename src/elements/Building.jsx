@@ -19,109 +19,6 @@ import { useState, useEffect } from "react";
 //   return shape;
 // };
 
-const buildingData = {
-  building: {
-    id: "building_001",
-    name: "Main Office Building",
-    geoJSON: [
-      {
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [100, 0],
-              [100, 100],
-              [0, 100],
-              [0, 0],
-            ],
-          ],
-        },
-        properties: {
-          name: "Main Office Building Footprint",
-        },
-      },
-    ],
-    floors: [
-      {
-        id: "floor_1",
-        name: "Ground Floor",
-        geoJSON: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Polygon",
-              coordinates: [
-                [
-                  [0, 0],
-                  [100, 0],
-                  [100, 100],
-                  [0, 100],
-                  [0, 0],
-                ],
-              ],
-            },
-            properties: {
-              name: "Ground Floor Outline",
-            },
-          },
-        ],
-        spaces: [
-          {
-            id: "space_101",
-            name: "Reception",
-            geoJSON: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [
-                    [
-                      [0, 0],
-                      [20, 0],
-                      [20, 30],
-                      [0, 30],
-                      [0, 0],
-                    ],
-                  ],
-                },
-                properties: {
-                  name: "Reception Area",
-                },
-              },
-            ],
-          },
-          {
-            id: "space_102",
-            name: "Meeting Room 1",
-            geoJSON: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [
-                    [
-                      [25, 0],
-                      [50, 0],
-                      [50, 25],
-                      [25, 25],
-                      [25, 0],
-                    ],
-                  ],
-                },
-                properties: {
-                  name: "Meeting Room 1",
-                },
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-};
-
 export const Building = ({ buildingData, color = "#cccccc", ...props }) => {
   const [data, setData] = useState(buildingData);
 
@@ -141,6 +38,17 @@ export const Building = ({ buildingData, color = "#cccccc", ...props }) => {
     .slice(1)
     .forEach((coord) => buildingShape.lineTo(coord[0], coord[1]));
 
+  const floorShapes = floors.map((floor) => {
+    const floorShape = new Shape();
+    const floorCoords = floor.geoJSON[0].geometry.coordinates[0];
+    floorShape.moveTo(floorCoords[0][0], floorCoords[0][1]);
+    floorCoords
+      .slice(1)
+      .forEach((coord) => floorShape.lineTo(coord[0], coord[1]));
+    return floorShape;
+  });
+
+  const currentFloor = floorShapes[0];
   return (
     <group {...props} type="Building">
       {/* Building outline */}
@@ -159,7 +67,7 @@ export const Building = ({ buildingData, color = "#cccccc", ...props }) => {
         <group key={floor.id} position={[0, index * (floor.height || 3), 0]}>
           <mesh>
             <extrudeGeometry
-              args={[buildingShape, { depth: 0.1, bevelEnabled: false }]}
+              args={[currentFloor, { depth: 0.1, bevelEnabled: false }]}
             />
             <meshStandardMaterial color={color} />
           </mesh>
