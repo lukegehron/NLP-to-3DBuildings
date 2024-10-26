@@ -14,6 +14,7 @@ export const ComponentRegistry = {
 
 export const createControlHandlers = (id, updateComponent, propertyKey) => ({
   onEditEnd: (value) => {
-    updateComponent({ id, props: { [propertyKey]: value } });
+    console.log("onEditEnd", value);
+    updateComponent({ id, props });
   },
 });

@@ -22,7 +22,7 @@ import {
 // import { PresenceOutlines } from "./components/PresenceOutlines.js";
 import { CommandBarProvider } from "./providers/CommandBarProvider.jsx";
 import { LiveMap } from "@liveblocks/client";
-// import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder.js";
+import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder.jsx";
 import { useRoomRoute } from "./hooks/useRoomRoute.js";
 import { SceneRenderer } from "./components/SceneRenderer.jsx";
 import { useName } from "./hooks/useName.js";
@@ -237,9 +237,11 @@ function App() {
               }}
             >
               <ambientLight />
-              <TransformControlsProvider ref={transformControlRef}>
-                <Scene />
-              </TransformControlsProvider>
+              <KeyboardControlsProvider>
+                <TransformControlsProvider ref={transformControlRef}>
+                  <Scene />
+                </TransformControlsProvider>
+              </KeyboardControlsProvider>
               {/* <mesh>
                 <boxGeometry />
                 <meshBasicMaterial />

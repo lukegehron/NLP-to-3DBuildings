@@ -1,20 +1,21 @@
 import { useRedo, useUndo } from "@liveblocks/react";
 import React, { useContext, useEffect, useState } from "react";
 import { useTransformControls } from "./TransformControlsProvider.jsx";
-import { useSceneState } from "../hooks/useSceneState.js";
+import { useSceneState } from "../hooks/useSceneState.jsx";
+import { selectedIdAtom } from "../utils/atom";
+import { useAtom } from "jotai";
 
 const KeyboardControls = React.createContext({});
 
 export const KeyboardControlsProvider = ({ children }) => {
-  const { selectedId, setSelectedId } = useTransformControls();
+  const [selectedId, setSelectedId] = useAtom(selectedIdAtom);
   const { deleteComponent, addComponent, components } = useSceneState();
 
-  const [copiedComponent, setCopiedComponent] =
-    (useState < any) | (null > null);
+  const [copiedComponent, setCopiedComponent] = useState(null);
 
-  function getComponentById(id) {
-    return components?.get(id);
-  }
+  // function getComponentById(id) {
+  //   return components.get(id);
+  // }
 
   const undo = useUndo();
   const redo = useRedo();
@@ -43,19 +44,19 @@ export const KeyboardControlsProvider = ({ children }) => {
         case "c":
           if (e.ctrlKey || e.metaKey) {
             // Assuming you have a function getComponentById to fetch the component data
-            const component = getComponentById(selectedId ?? "");
-            if (component) {
-              console.log("Copy action triggered", JSON.stringify(component));
+            // const component = getComponentById(selectedId ?? "");
+            if (selectedId) {
+              console.log("Copy action triggered");
             } else {
               console.log("Component not found for ID:", selectedId);
             }
-            setCopiedComponent(component);
+            // setCopiedComponent(component);
           }
           break;
         case "v":
           if (e.ctrlKey || e.metaKey) {
             // Handle paste logic here
-            addComponent(JSON.parse(JSON.stringify(copiedComponent)));
+            // addComponent(JSON.parse(JSON.stringify(copiedComponent)));
             console.log("Paste action triggered");
           }
           break;

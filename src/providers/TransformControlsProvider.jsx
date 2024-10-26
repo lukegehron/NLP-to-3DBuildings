@@ -14,6 +14,8 @@ import { useUpdateMyPresence } from "@liveblocks/react";
 import { useSceneState } from "../hooks/useSceneState";
 import { TransformControls as TransformControlsImpl } from "three-stdlib";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { selectedIdAtom, selectedAtom } from "../utils/atom";
+import { useAtom } from "jotai";
 // import { EulerTuple } from "../types";
 
 const TransformControlsContext = React.createContext({});
@@ -22,8 +24,8 @@ export const TransformControlsProvider = forwardRef(({ children }, ref) => {
   const { gl, scene } = useThree();
 
   const [isTransforming, setIsTransforming] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [selectedObject, setSelectedObject] = useState(null);
+  const [selectedId, setSelectedId] = useAtom(selectedIdAtom);
+  const [selectedObject, setSelectedObject] = useAtom(selectedAtom);
 
   const { updateComponent } = useSceneState();
   const updateMyPresence = useUpdateMyPresence();

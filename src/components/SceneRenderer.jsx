@@ -2,6 +2,8 @@ import { useTransformControls } from "../providers/TransformControlsProvider.jsx
 import { useSceneState } from "../hooks/useSceneState.jsx";
 import { ComponentRegistry } from "../elements/ComponentRegistry.jsx";
 import { useTransformState } from "../hooks/useTransformState.jsx";
+import { selectedIdAtom } from "../utils/atom";
+import { useAtom } from "jotai";
 // import { SceneComponentData } from "../types.js";
 import { useControls } from "leva";
 
@@ -16,7 +18,8 @@ const SceneNode = ({ node }) => {
   const { updateComponent } = useSceneState();
 
   // Only create controls if they're defined and we're the selected node
-  const { setSelectedId } = useTransformControls();
+  // const { setSelectedId } = useTransformControls();
+  const [selectedId, setSelectedId] = useAtom(selectedIdAtom);
   const { position, rotation, scale } = useTransformState(node.id);
 
   // Only show controls when this node is selected

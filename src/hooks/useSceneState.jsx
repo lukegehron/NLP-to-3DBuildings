@@ -29,7 +29,7 @@ export const useSceneState = () => {
   // Add a new component
   const addComponent = useMutation(({ storage }, { type, props, parentId }) => {
     const id = uuidv4();
-    storage.get("components")?.set(
+    storage.get("components").set(
       id,
       new LiveObject({
         id,
@@ -44,7 +44,7 @@ export const useSceneState = () => {
   // Update component
   const updateComponent = useMutation(({ storage }, { id, props }) => {
     console.log({ id, props });
-    const component = storage.get("components")?.get(id);
+    const component = storage.get("components").get(id);
     if (component) {
       component.get("props").update(props);
     }
@@ -69,7 +69,7 @@ export const useSceneState = () => {
 
   // Move component to new parent
   const moveComponent = useMutation(({ storage }, { id, newParentId }) => {
-    const component = storage.get("components")?.get(id);
+    const component = storage.get("components").get(id);
     if (component) {
       component.set("parentId", newParentId);
     }
