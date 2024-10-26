@@ -4,20 +4,70 @@ import {
   createControlHandlers,
   // UpdateFunction,
 } from "./ComponentRegistry";
+import * as THREE from "three";
+import { useRef, useMemo } from "react";
 
-export const Box = ({
-  width = 1,
-  height = 1,
-  length = 1,
-  color = "orange",
-  scale = 1,
-  ...props
-}) => {
+// JSON structure for Box component
+const boxDefinition = {
+  component: "Box",
+  geometry: {
+    type: "BoxGeometry",
+    args: ["width", "height", "length"],
+  },
+  material: {
+    type: "MeshStandardMaterial",
+    props: {
+      color: "color",
+    },
+  },
+  controls: {
+    dimensions: {
+      width: { value: 1, min: 0.1, max: 10, step: 0.1 },
+      height: { value: 1, min: 0.1, max: 10, step: 0.1 },
+      length: { value: 1, min: 0.1, max: 20, step: 0.1 },
+      scale: { value: 1 },
+    },
+    appearance: {
+      color: { value: "orange" },
+    },
+  },
+  defaultProps: {
+    width: 1,
+    height: 1,
+    length: 1,
+    scale: 2,
+    color: "orange",
+  },
+};
+
+export const Box = (props) => {
+  const { geometry, material } = boxDefinition;
+  const meshRef = useRef();
+
+  // Create geometry
+  const geometryArgs = geometry.args.map((arg) => props[arg]);
+  const geometryInstance = useMemo(() => {
+    const GeometryClass = THREE[geometry.type];
+    return new GeometryClass(...geometryArgs);
+  }, geometryArgs);
+
+  // Create material
+  const materialProps = Object.fromEntries(
+    Object.entries(material.props).map(([key, value]) => [key, props[value]])
+  );
+  const materialInstance = useMemo(() => {
+    const MaterialClass = THREE[material.type];
+    return new MaterialClass(materialProps);
+  }, [JSON.stringify(materialProps)]);
+
   return (
-    <mesh {...props} type="Box">
-      <boxGeometry args={[width, height, length]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <mesh
+      ref={meshRef}
+      {...props}
+      type="Box"
+      geometry={geometryInstance}
+      material={materialInstance}
+    />
   );
 };
 
@@ -63,11 +113,5 @@ export const BoxDefinition = {
       },
     }),
   }),
-  defaultProps: {
-    width: 1,
-    height: 1,
-    length: 1,
-    scale: 2,
-    color: "orange",
-  },
+  defaultProps: boxDefinition.defaultProps,
 };
