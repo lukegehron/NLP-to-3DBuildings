@@ -1,4 +1,4 @@
-# 🦖 Buildosaur
+# 🦖 NLP-to-3DBuildings
 
 A collaborative 3D parametric modeling playground built for [AEC Tech 2024](https://www.aectech.us/nyc-workshops-in-person). Think Figma, but for BIM.
 
