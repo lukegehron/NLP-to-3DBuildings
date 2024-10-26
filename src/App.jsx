@@ -28,109 +28,8 @@ import { SceneRenderer } from "./components/SceneRenderer.jsx";
 import { useName } from "./hooks/useName.js";
 import { Leva } from "leva";
 import { Building } from "./elements/Building.jsx";
-
-const buildingData = {
-  building: {
-    id: "building_001",
-    name: "Main Office Building",
-    geoJSON: [
-      {
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [100, 0],
-              [100, 100],
-              [0, 100],
-              [0, 0],
-            ],
-          ],
-        },
-        properties: {
-          name: "Main Office Building Footprint",
-        },
-      },
-    ],
-    floors: [
-      {
-        id: "floor_1",
-        name: "Ground Floor",
-        geoJSON: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Polygon",
-              coordinates: [
-                [
-                  [0, 0],
-                  [100, 0],
-                  [100, 100],
-                  [0, 100],
-                  [0, 0],
-                ],
-              ],
-            },
-            properties: {
-              name: "Ground Floor Outline",
-            },
-          },
-        ],
-        spaces: [
-          {
-            id: "space_101",
-            name: "Reception",
-            geoJSON: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [
-                    [
-                      [0, 0],
-                      [20, 0],
-                      [20, 30],
-                      [0, 30],
-                      [0, 0],
-                    ],
-                  ],
-                },
-                properties: {
-                  name: "Reception Area",
-                },
-              },
-            ],
-          },
-          {
-            id: "space_102",
-            name: "Meeting Room 1",
-            geoJSON: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [
-                    [
-                      [25, 0],
-                      [50, 0],
-                      [50, 25],
-                      [25, 25],
-                      [25, 0],
-                    ],
-                  ],
-                },
-                properties: {
-                  name: "Meeting Room 1",
-                },
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-};
+import { buildingDataAtom } from "./utils/atom";
+import { useAtom } from "jotai";
 
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
@@ -149,10 +48,10 @@ const Scene = () => {
       ) : (
         <PerspectiveCamera makeDefault position={[5, 9, 5]} fov={50} />
       )}
-      {/* <Environment preset="city" /> */}
-      <GizmoHelper alignment="top-left" margin={[80, 80]}>
+      <Environment preset="city" />
+      {/* <GizmoHelper alignment="top-left" margin={[80, 80]}>
         <GizmoViewcube />
-      </GizmoHelper>
+      </GizmoHelper> */}
       <ContactShadows
         opacity={0.55}
         width={4}
@@ -183,6 +82,7 @@ const Scene = () => {
 
 function App() {
   const room = useRoomRoute();
+  const [buildingData, setBuildingData] = useAtom(buildingDataAtom);
 
   // Reference to the imperative api provided by TransformControlsProvider
   const transformControlRef = useRef();
@@ -192,6 +92,43 @@ function App() {
   const setMode = useCallback((mode) => {
     transformControlRef.current?.setMode(mode);
   }, []);
+
+  const getFloorName = (index) => {
+    const floorNames = ["Ground", "First", "Second", "Third", "Fourth"];
+    return floorNames[index] || `Floor ${index + 1}`;
+  };
+
+  const handleFloorChange = (event) => {
+    const newFloorCount = parseInt(event.target.value, 10);
+    setBuildingData((prevData) => {
+      const updatedBuilding = { ...prevData.building };
+      const currentFloors = updatedBuilding.floors || [];
+
+      if (newFloorCount > currentFloors.length) {
+        // Duplicate the last floor if available, otherwise create a new floor
+        const floorToDuplicate =
+          currentFloors[currentFloors.length - 1] ||
+          {
+            /* default floor structure */
+          };
+        updatedBuilding.floors = [
+          ...currentFloors,
+          ...Array(newFloorCount - currentFloors.length)
+            .fill()
+            .map((_, index) => ({
+              ...floorToDuplicate,
+              id: `floor_${currentFloors.length + index + 1}`,
+              name: getFloorName(currentFloors.length + index),
+            })),
+        ];
+      } else {
+        updatedBuilding.floors = currentFloors.slice(0, newFloorCount);
+      }
+      console.log(updatedBuilding);
+
+      return { ...prevData, building: updatedBuilding };
+    });
+  };
 
   return (
     <LiveblocksProvider
@@ -242,24 +179,50 @@ function App() {
                   <Scene />
                 </TransformControlsProvider>
               </KeyboardControlsProvider>
-              {/* <mesh>
-                <boxGeometry />
-                <meshBasicMaterial />
-              </mesh>
-              <OrbitControls /> */}
-              <Building
+              {/* <Building
                 rotation={[-Math.PI / 2, 0, 0]}
                 scale={[0.2, 0.2, 0.2]}
                 buildingData={buildingData}
-              />
+              /> */}
             </Canvas>
+            <div className="absolute top-0 left-0 w-[300px] bg-black/50 pointer-events-none">
+              <div className="pointer-events-auto p-4">
+                <label htmlFor="floorSlider" className="block text-white mb-2">
+                  Number of Floors:
+                </label>
+                <input
+                  id="floorSlider"
+                  type="range"
+                  min="1"
+                  max="5"
+                  value={buildingData?.building?.floors?.length || 1}
+                  onChange={handleFloorChange}
+                  className="w-full"
+                />
+                <p className="text-white">
+                  Current Floors: {buildingData?.building?.floors?.length || 0}
+                </p>
+                <p className="text-white">
+                  Floor Height: {buildingData?.building?.height}
+                </p>
+                <p className="text-white">
+                  Building Name: {buildingData?.building?.name}
+                </p>
+                <p className="text-white">
+                  Building Type: {buildingData?.building?.type}
+                </p>
+                <p className="text-white">
+                  Building Offset: {buildingData?.building?.offset}
+                </p>
+              </div>
+            </div>
           </CommandBarProvider>
         </ClientSideSuspense>
-        <Leva
+        {/* <Leva
           titleBar={{
             title: "Buildosaur",
           }}
-        />
+        /> */}
       </RoomProvider>
     </LiveblocksProvider>
   );

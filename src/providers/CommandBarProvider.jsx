@@ -14,6 +14,8 @@ import {
   ArrowsMove,
   Box,
 } from "react-bootstrap-icons";
+import { buildingDataAtom } from "../utils/atom";
+import { useAtom } from "jotai";
 
 const DEFAULT_PREFERENCES = {
   foo: undefined,
@@ -23,7 +25,7 @@ const Context = React.createContext({});
 
 export const CommandBarProvider = ({ setMode, children }) => {
   const [open, setOpen] = React.useState(false);
-
+  const [buildingData] = useAtom(buildingDataAtom);
   // Toggle command bar with keyboard shortcut
   useEffect(() => {
     const down = (e) => {
@@ -155,6 +157,7 @@ export const CommandBarProvider = ({ setMode, children }) => {
                 addComponent({
                   type: "Building",
                   props: {
+                    color: randomColor(),
                     position: [0, 0, 0],
                     rotation: [0, 0, 0, "XYZ"],
                     scale: [1, 1, 1],

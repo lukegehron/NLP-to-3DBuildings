@@ -1,11 +1,14 @@
 import { LiveObject } from "@liveblocks/client";
 import { useMutation, useStorage } from "@liveblocks/react";
 import { v4 as uuidv4 } from "uuid";
+import { allComponentsAtom } from "../utils/atom";
+import { useSetAtom } from "jotai";
 // import { ComponentProps, SceneComponentData } from "../types";
 
 export const useSceneState = () => {
   // Read the flat component map from storage
   const components = useStorage((root) => root.components);
+  const setAllComponents = useSetAtom(allComponentsAtom);
 
   // Get reconstructed scene graph
   const sceneGraph = useStorage((root) => {
@@ -26,6 +29,10 @@ export const useSceneState = () => {
     return buildTree();
   });
 
+  function handleAddComponent(component) {
+    setAllComponents((prev) => [...prev, component]);
+  }
+
   // Add a new component
   const addComponent = useMutation(({ storage }, { type, props, parentId }) => {
     const id = uuidv4();
@@ -38,6 +45,7 @@ export const useSceneState = () => {
         props: new LiveObject(props),
       })
     );
+    handleAddComponent(id);
     return id;
   }, []);
 
