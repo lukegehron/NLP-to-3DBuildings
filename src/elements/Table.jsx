@@ -1,8 +1,8 @@
 import { folder } from "leva";
 import {
-  BaseComponentDefinition,
+  // BaseComponentDefinition,
   createControlHandlers,
-  UpdateFunction,
+  // UpdateFunction,
 } from "./ComponentRegistry";
 
 export const Table = ({
@@ -67,9 +67,9 @@ export const Table = ({
   );
 };
 
-export const TableDefinition: BaseComponentDefinition = {
+export const TableDefinition = {
   component: Table,
-  getControls: (id: string, updateComponent: UpdateFunction) => ({
+  getControls: (id, updateComponent) => ({
     dimensions: folder({
       legWidth: {
         value: 0.1,

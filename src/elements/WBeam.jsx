@@ -1,8 +1,8 @@
 import { Shape } from "three";
 import {
-  BaseComponentDefinition,
+  // BaseComponentDefinition,
   createControlHandlers,
-  UpdateFunction,
+  // UpdateFunction,
 } from "./ComponentRegistry";
 import { folder } from "leva";
 
@@ -69,9 +69,9 @@ export const WBeam = ({
   );
 };
 
-export const WBeamDefinition: BaseComponentDefinition = {
+export const WBeamDefinition = {
   component: WBeam,
-  getControls: (id: string, updateComponent: UpdateFunction) => ({
+  getControls: (id, updateComponent) => ({
     dimensions: folder({
       width: {
         value: 1,

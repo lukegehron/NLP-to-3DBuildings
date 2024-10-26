@@ -17,7 +17,7 @@ export const useName = () => {
     }
   });
 
-  const setName = (newName: string) => {
+  const setName = (newName) => {
     localStorage.setItem(NAME_KEY, newName);
     _setName(newName);
   };
@@ -33,7 +33,7 @@ export const useName = () => {
     }
   });
 
-  const setColor = (newColor: string) => {
+  const setColor = (newColor) => {
     localStorage.setItem(COLOR_KEY, newColor);
     _setColor(newColor);
   };

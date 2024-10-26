@@ -1,8 +1,8 @@
 import { folder } from "leva";
 import {
-  BaseComponentDefinition,
+  // BaseComponentDefinition,
   createControlHandlers,
-  UpdateFunction,
+  // UpdateFunction,
 } from "./ComponentRegistry";
 
 export const Box = ({
@@ -20,9 +20,9 @@ export const Box = ({
   );
 };
 
-export const BoxDefinition: BaseComponentDefinition = {
+export const BoxDefinition = {
   component: Box,
-  getControls: (id: string, updateComponent: UpdateFunction) => ({
+  getControls: (id, updateComponent) => ({
     dimensions: folder({
       width: {
         value: 1,

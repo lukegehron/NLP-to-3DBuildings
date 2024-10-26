@@ -1,1 +1,28 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/outlinedobject.tsx","./src/components/presenceoutlines.tsx","./src/components/scenerenderer.tsx","./src/components/ui/commandbar.tsx","./src/components/ui/dialog.tsx","./src/elements/box.tsx","./src/elements/componentregistry.tsx","./src/elements/wbeam.tsx","./src/hooks/usename.ts","./src/hooks/useroomroute.ts","./src/hooks/usescenestate.tsx","./src/hooks/useseltransformmap.ts","./src/hooks/usetransformstate.tsx","./src/providers/commandbarprovider.tsx","./src/providers/keyboardcontrolsprovder.tsx","./src/providers/transformcontrolsprovider.tsx","./src/utils/namegenerator.ts","./src/utils/randomcolor.ts","./liveblocks.config.ts"],"version":"5.6.3"}
+{
+  "root": [
+    "./src/app.jsx",
+    "./src/main.jsx",
+    "./src/types.ts",
+    "./src/vite-env.d.ts",
+    "./src/components/outlinedobject.jsx",
+    "./src/components/presenceoutlines.jsx",
+    "./src/components/scenerenderer.jsx",
+    "./src/components/ui/commandbar.jsx",
+    "./src/components/ui/dialog.jsx",
+    "./src/elements/box.jsx",
+    "./src/elements/componentregistry.jsx",
+    "./src/elements/wbeam.tsx",
+    "./src/hooks/usename.ts",
+    "./src/hooks/useroomroute.ts",
+    "./src/hooks/usescenestate.tsx",
+    "./src/hooks/useseltransformmap.jsx",
+    "./src/hooks/usetransformstate.jsx",
+    "./src/providers/commandbarprovider.jsx",
+    "./src/providers/keyboardcontrolsprovder.jsx",
+    "./src/providers/transformcontrolsprovider.jsx",
+    "./src/utils/namegenerator.jsx",
+    "./src/utils/randomcolor.jsx",
+    "./liveblocks.config.ts"
+  ],
+  "version": "5.6.3"
+}

@@ -15,38 +15,18 @@ import {
   Box,
 } from "react-bootstrap-icons";
 
-interface CommandBarState {
-  foo?: string;
-}
-
-const DEFAULT_PREFERENCES: CommandBarState = {
+const DEFAULT_PREFERENCES = {
   foo: undefined,
 };
 
-interface CommandBarContextValue {
-  toggleCommandBar: (open?: boolean) => void;
-  cBarState: typeof DEFAULT_PREFERENCES;
-  setCBarState: (preferences: Partial<typeof DEFAULT_PREFERENCES>) => void;
-}
+const Context = React.createContext({});
 
-const Context = React.createContext<CommandBarContextValue>(
-  {} as CommandBarContextValue
-);
-
-interface CommandBarProviderProps {
-  setMode: (mode: "translate" | "rotate" | "scale") => void;
-  children?: React.ReactNode;
-}
-
-export const CommandBarProvider = ({
-  setMode,
-  children,
-}: CommandBarProviderProps): React.ReactElement => {
+export const CommandBarProvider = ({ setMode, children }) => {
   const [open, setOpen] = React.useState(false);
 
   // Toggle command bar with keyboard shortcut
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
+    const down = (e) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
@@ -57,7 +37,7 @@ export const CommandBarProvider = ({
   }, []);
 
   const toggleCommandBar = useCallback(
-    (open?: boolean) =>
+    (open) =>
       setOpen((o) => {
         return typeof open === "boolean" ? open : !o;
       }),
@@ -154,11 +134,37 @@ export const CommandBarProvider = ({
             <CommandItem
               key={"create-table"}
               onSelect={() => {
-                addComponent({ type: "Table" });
+                addComponent({
+                  type: "Table",
+                  props: {
+                    color: randomColor(),
+                    position: [0, 3, 0],
+                    rotation: [0, 0, 0, "XYZ"],
+                    scale: [1, 1, 1],
+                  },
+                });
                 setOpen(false);
               }}
+              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
             >
               <Box /> Add Table
+            </CommandItem>
+            <CommandItem
+              key={"create-building"}
+              onSelect={() => {
+                addComponent({
+                  type: "Building",
+                  props: {
+                    position: [0, 0, 0],
+                    rotation: [0, 0, 0, "XYZ"],
+                    scale: [1, 1, 1],
+                  },
+                });
+                setOpen(false);
+              }}
+              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
+            >
+              <Box /> Add Building
             </CommandItem>
           </CommandGroup>
         </CommandList>
@@ -168,6 +174,6 @@ export const CommandBarProvider = ({
   );
 };
 
-export const useCommandBar = (): CommandBarContextValue => {
+export const useCommandBar = () => {
   return useContext(Context);
 };

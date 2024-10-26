@@ -8,6 +8,7 @@ import {
   Grid,
   OrthographicCamera,
   PerspectiveCamera,
+  OrbitControls,
 } from "@react-three/drei";
 import {
   ClientSideSuspense,
@@ -16,15 +17,15 @@ import {
 } from "@liveblocks/react";
 import {
   TransformControlsProvider,
-  TransformControlsProviderRef,
-} from "./providers/TransformControlsProvider";
-import { PresenceOutlines } from "./components/PresenceOutlines";
-import { CommandBarProvider } from "./providers/CommandBarProvider";
+  // TransformControlsProviderRef,
+} from "./providers/TransformControlsProvider.jsx";
+// import { PresenceOutlines } from "./components/PresenceOutlines.js";
+import { CommandBarProvider } from "./providers/CommandBarProvider.jsx";
 import { LiveMap } from "@liveblocks/client";
-import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder";
-import { useRoomRoute } from "./hooks/useRoomRoute";
-import { SceneRenderer } from "./components/SceneRenderer";
-import { useName } from "./hooks/useName";
+// import { KeyboardControlsProvider } from "./providers/KeyboardControlsProvder.js";
+import { useRoomRoute } from "./hooks/useRoomRoute.js";
+import { SceneRenderer } from "./components/SceneRenderer.jsx";
+import { useName } from "./hooks/useName.js";
 import { Leva } from "leva";
 
 const Scene = () => {
@@ -33,7 +34,7 @@ const Scene = () => {
   return (
     <>
       <SceneRenderer />
-      <PresenceOutlines />
+      {/* <PresenceOutlines /> */}
       {isOrtho ? (
         <OrthographicCamera
           makeDefault
@@ -80,11 +81,11 @@ function App() {
   const room = useRoomRoute();
 
   // Reference to the imperative api provided by TransformControlsProvider
-  const transformControlRef = useRef<TransformControlsProviderRef>();
+  const transformControlRef = useRef();
 
   const { name, color } = useName();
 
-  const setMode = useCallback((mode: "rotate" | "scale" | "translate") => {
+  const setMode = useCallback((mode) => {
     transformControlRef.current?.setMode(mode);
   }, []);
 
@@ -132,10 +133,13 @@ function App() {
               }}
             >
               <TransformControlsProvider ref={transformControlRef}>
-                <KeyboardControlsProvider>
-                  <Scene />
-                </KeyboardControlsProvider>
+                <Scene />
               </TransformControlsProvider>
+              {/* <mesh>
+                <boxGeometry />
+                <meshBasicMaterial />
+              </mesh>
+              <OrbitControls /> */}
             </Canvas>
           </CommandBarProvider>
         </ClientSideSuspense>

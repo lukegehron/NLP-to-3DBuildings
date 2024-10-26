@@ -3,7 +3,7 @@ import { isValidMatrix, useSelTransformMap } from "./useSelTransformMap";
 import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import { useStorage } from "@liveblocks/react";
 
-export const useTransformState = (uuid: string) => {
+export const useTransformState = (uuid) => {
   const { selTransformMap } = useSelTransformMap();
 
   const selTransform = useMemo(() => {

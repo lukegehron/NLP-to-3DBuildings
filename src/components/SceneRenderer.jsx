@@ -1,11 +1,11 @@
-import { useTransformControls } from "../providers/TransformControlsProvider";
-import { useSceneState } from "../hooks/useSceneState";
-import { ComponentRegistry } from "../elements/ComponentRegistry";
-import { useTransformState } from "../hooks/useTransformState";
-import { SceneComponentData } from "../types";
+import { useTransformControls } from "../providers/TransformControlsProvider.jsx";
+import { useSceneState } from "../hooks/useSceneState.jsx";
+import { ComponentRegistry } from "../elements/ComponentRegistry.jsx";
+import { useTransformState } from "../hooks/useTransformState.jsx";
+// import { SceneComponentData } from "../types.js";
 import { useControls } from "leva";
 
-const SceneNode = ({ node }: { node: any }) => {
+const SceneNode = ({ node }) => {
   const registry = ComponentRegistry[node.type];
 
   if (!registry) {
@@ -42,9 +42,10 @@ const SceneNode = ({ node }: { node: any }) => {
       uuid={node.id}
       onClick={() => {
         setSelectedId(node.id);
+        // console.log("clicked", node.id);
       }}
     >
-      {node.children?.map((child: SceneComponentData) => (
+      {node.children?.map((child) => (
         <SceneNode key={child.id} node={child} />
       ))}
     </Component>
