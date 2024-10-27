@@ -9,11 +9,47 @@ export const useSceneState = () => {
   // Read the flat component map from storage
   const components = useStorage((root) => root.components);
   const setAllComponents = useSetAtom(allComponentsAtom);
+  // console.log(Array.from(components.entries()));
+
+  // Add a new component
+  const addComponent = useMutation(({ storage }, { type, props, parentId }) => {
+    const id = uuidv4();
+    storage.get("components").set(
+      id,
+      new LiveObject({
+        id,
+        type,
+        parentId,
+        props: new LiveObject(props),
+      })
+    );
+    handleAddComponent(id);
+    return id;
+  }, []);
 
   // Get reconstructed scene graph
   const sceneGraph = useStorage((root) => {
     const components = root.components;
-    if (!components) return null;
+
+    let myComponents = Array.from(components.entries());
+    console.log("myComponents", myComponents);
+    if (myComponents.length === 0) {
+      console.log("No components found, adding root component");
+      addComponent({
+        id: "root",
+        type: "Building",
+        buildingData: {},
+        props: {},
+        children: [],
+      });
+    }
+
+    console.log("components", components);
+    if (!components) {
+      console.log("No components found, adding root component");
+
+      return null;
+    }
 
     const buildTree = (parentId) => {
       return Array.from(components.entries())
@@ -32,22 +68,6 @@ export const useSceneState = () => {
   function handleAddComponent(component) {
     setAllComponents((prev) => [...prev, component]);
   }
-
-  // Add a new component
-  const addComponent = useMutation(({ storage }, { type, props, parentId }) => {
-    const id = uuidv4();
-    storage.get("components").set(
-      id,
-      new LiveObject({
-        id,
-        type,
-        parentId,
-        props: new LiveObject(props),
-      })
-    );
-    handleAddComponent(id);
-    return id;
-  }, []);
 
   // Update component
   const updateComponent = useMutation(({ storage }, { id, props }) => {

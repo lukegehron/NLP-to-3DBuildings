@@ -414,9 +414,9 @@ function App() {
                 <p className="text-white">
                   Building Type: {buildingData?.building?.type}
                 </p>
-                <p className="text-white">
+                {/* <p className="text-white">
                   Building Offset: {buildingData?.building?.offset}
-                </p>
+                </p> */}
                 {/* scale x scale y scale z */}
                 <label htmlFor="scaleX" className="block text-white mb-2">
                   Scale X:
@@ -458,13 +458,13 @@ function App() {
                   value={scaleZ || 0.3}
                   onChange={handleScaleZChange}
                 />
-                <button
+                {/* <button
                   onClick={() => (
                     console.log("do this"), main(aiPrompt, buildingPrompt)
                   )}
                 >
                   Generate Building
-                </button>
+                </button> */}
               </div>
             </div>
           </CommandBarProvider>
