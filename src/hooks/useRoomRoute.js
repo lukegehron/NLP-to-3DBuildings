@@ -4,13 +4,13 @@ import { roomName } from "../utils/nameGenerator";
 export const useRoomRoute = () => {
   const [room, _setRoom] = useState(() => {
     const path = window.location.pathname;
-    const roomPath = path.replace(/^\/buildosaur\/?/, "");
+    const roomPath = path.replace(/^\/nlpbuilding\/?/, "");
     return roomPath || roomName();
   });
 
   const navigateHandler = useCallback(() => {
     const path = window.location.pathname;
-    const roomPath = path.replace(/^\/buildosaur\/?/, "");
+    const roomPath = path.replace(/^\/nlpbuilding\/?/, "");
     if (roomPath) {
       _setRoom(roomPath);
     }
@@ -25,9 +25,9 @@ export const useRoomRoute = () => {
 
   useEffect(() => {
     const path = window.location.pathname;
-    const roomPath = path.replace(/^\/buildosaur\/?/, "");
+    const roomPath = path.replace(/^\/nlpbuilding\/?/, "");
     if (!roomPath) {
-      window.history.pushState({}, "", `/buildosaur/${room}`);
+      window.history.pushState({}, "", `/nlpbuilding/${room}`);
     }
   }, [room]);
 

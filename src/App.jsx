@@ -199,7 +199,7 @@ const Scene = () => {
         followCamera={true}
         infiniteGrid={true}
       />
-      {obj && <primitive object={obj} />}
+      {/* {obj && <primitive object={obj} />} */}
     </>
   );
 };
@@ -334,7 +334,7 @@ function App() {
               /> */}
             </Canvas>
             {/* Chatbox Component */}
-            {/* <Chatbox /> */}
+            <Chatbox />
             <div className="absolute top-0 left-0 w-[300px] bg-black/50 pointer-events-none">
               <div className="pointer-events-auto p-4">
                 <label htmlFor="floorSlider" className="block text-white mb-2">

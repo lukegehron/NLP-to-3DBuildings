@@ -169,6 +169,20 @@ export const CommandBarProvider = ({ setMode, children }) => {
             >
               <Box /> Add Building
             </CommandItem>
+            <CommandItem
+              key={"create-chair"}
+              onSelect={() => {
+                addComponent({
+                  type: "Chair",
+                  props: {
+                    color: randomColor(),
+                  },
+                });
+              }}
+              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
+            >
+              <Box /> Add Chair
+            </CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>

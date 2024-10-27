@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { funName, stringToColor } from "../utils/nameGenerator";
 
-const NAME_KEY = "buildosaur-name";
-const COLOR_KEY = "buildosaur-color";
+const NAME_KEY = "nlpbuilding-name";
+const COLOR_KEY = "nlpbuilding-color";
 
 const DEFAULT_NAME = funName();
 

@@ -47,13 +47,12 @@ export const Building = ({ color = "#cccccc", ...props }) => {
   }, [buildingData]);
 
   const processGeometry = (feature) => {
-    console.log(feature);
-    if (feature.geometry.type === "Polygon") {
-      return feature.geometry.coordinates[0];
-    } else if (feature.geometry.type === "LineString") {
+    if (feature.geometry.type === "LineString") {
       const { coordinates } = feature.geometry;
       const offset = feature.properties.offset || 0;
       return createOffsetPolygon(coordinates, offset);
+    } else {
+      return feature.geometry.coordinates[0];
     }
     return [];
   };
