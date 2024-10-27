@@ -13,6 +13,13 @@ import {
   ArrowsAngleExpand,
   ArrowsMove,
   Box,
+  Circle,
+  Bricks,
+  Grid3x3,
+  Columns,
+  Hammer,
+  // Chair,
+  // Table,
 } from "react-bootstrap-icons";
 import { buildingDataAtom } from "../utils/atom";
 import { useAtom } from "jotai";
@@ -49,6 +56,49 @@ export const CommandBarProvider = ({ setMode, children }) => {
   const [cBarState, setCBarState] = useState(DEFAULT_PREFERENCES);
 
   const { addComponent } = useSceneState();
+
+  const itemGroups = {
+    "Platonic Elements": [
+      {
+        key: "box",
+        label: "Box",
+        icon: Box,
+        type: "Box",
+        dimensions: [1, 1, 1],
+      },
+      { key: "sphere", label: "Sphere", icon: Circle, type: "Sphere" },
+    ],
+    "Architectural Elements": [
+      {
+        key: "wall",
+        label: "Wall",
+        icon: Bricks,
+        type: "Box",
+        dimensions: [4, 3, 0.2],
+      },
+      {
+        key: "floor",
+        label: "Floor",
+        icon: Grid3x3,
+        type: "Box",
+        dimensions: [4, 0.2, 4],
+      },
+    ],
+    "Structural Elements": [
+      {
+        key: "column",
+        label: "Column",
+        icon: Columns,
+        type: "Box",
+        dimensions: [0.3, 3, 0.3],
+      },
+      { key: "beam", label: "Beam", icon: Hammer, type: "WBeam" },
+    ],
+    Furniture: [
+      { key: "chair", label: "Chair", icon: Circle, type: "Chair" },
+      { key: "table", label: "Table", icon: Circle, type: "Table" },
+    ],
+  };
 
   return (
     <Context.Provider
@@ -93,97 +143,30 @@ export const CommandBarProvider = ({ setMode, children }) => {
               <ArrowsAngleExpand /> Scale
             </CommandItem>
           </CommandGroup>
-          <CommandGroup heading="Add Element">
-            <CommandItem
-              key={"create-box"}
-              onSelect={() => {
-                addComponent({
-                  type: "Box",
-                  props: {
-                    color: randomColor(),
-                    position: [0, 3, 0],
-                    rotation: [0, 0, 0, "XYZ"],
-                    scale: [1, 1, 1],
-                    width: 1,
-                    height: 1,
-                    length: 1,
-                  },
-                });
-                setOpen(false);
-              }}
-              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
-            >
-              <Box /> Add Box
-            </CommandItem>
-            <CommandItem
-              key={"create-wbeam"}
-              onSelect={() => {
-                addComponent({
-                  type: "WBeam",
-                  props: {
-                    color: randomColor(),
-                    position: [0, 3, 0],
-                    rotation: [0, 0, 0, "XYZ"],
-                    scale: [1, 1, 1],
-                  },
-                });
-                setOpen(false);
-              }}
-              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
-            >
-              <Box /> Add Wide Flange Beam
-            </CommandItem>
-            <CommandItem
-              key={"create-table"}
-              onSelect={() => {
-                addComponent({
-                  type: "Table",
-                  props: {
-                    color: randomColor(),
-                    position: [0, 3, 0],
-                    rotation: [0, 0, 0, "XYZ"],
-                    scale: [1, 1, 1],
-                  },
-                });
-                setOpen(false);
-              }}
-              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
-            >
-              <Box /> Add Table
-            </CommandItem>
-            <CommandItem
-              key={"create-building"}
-              onSelect={() => {
-                addComponent({
-                  type: "Building",
-                  props: {
-                    color: randomColor(),
-                    position: [0, 0, 0],
-                    rotation: [0, 0, 0, "XYZ"],
-                    scale: [1, 1, 1],
-                  },
-                });
-                setOpen(false);
-              }}
-              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
-            >
-              <Box /> Add Building
-            </CommandItem>
-            <CommandItem
-              key={"create-chair"}
-              onSelect={() => {
-                addComponent({
-                  type: "Chair",
-                  props: {
-                    color: randomColor(),
-                  },
-                });
-              }}
-              className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
-            >
-              <Box /> Add Chair
-            </CommandItem>
-          </CommandGroup>
+          {Object.entries(itemGroups).map(([groupName, items]) => (
+            <CommandGroup key={groupName} heading={groupName}>
+              {items.map((item) => (
+                <CommandItem
+                  key={item.key}
+                  onSelect={() => {
+                    addComponent({
+                      type: item.type,
+                      props: {
+                        color: randomColor(),
+                        position: [0, 0, 0],
+                        rotation: [0, 0, 0, "XYZ"],
+                        scale: item.dimensions || [1, 1, 1],
+                      },
+                    });
+                    setOpen(false);
+                  }}
+                  className="hover:bg-gray-100 p-2 rounded-md flex gap-2 text-black"
+                >
+                  <item.icon /> Add {item.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
         </CommandList>
       </CommandDialog>
       {children}

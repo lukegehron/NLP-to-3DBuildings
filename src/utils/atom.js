@@ -1,5 +1,8 @@
 import { atom } from "jotai";
-
+export const aiPromptAtom = atom("");
+export const buildingPromptAtom = atom(
+  "in the format: building:{id:string, name:string, geoJSON:[{type:string, geometry:{type:string, coordinates:[[number, number]]}, properties:{name:string}}], floors:[{id:string, name:string, geoJSON:[{type:string, geometry:{type:string, coordinates:[[number, number]]}, properties:{name:string}}], spaces:[{id:string, name:string, geoJSON:[{type:string, geometry:{type:string, coordinates:[[number, number]]}, properties:{name:string}}]}]}]"
+);
 export const selectedIdAtom = atom(null);
 export const selectedAtom = atom(null);
 export const allComponentsAtom = atom([]);

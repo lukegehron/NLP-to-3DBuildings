@@ -33,12 +33,19 @@ import {
   scaleXAtom,
   scaleYAtom,
   scaleZAtom,
+  buildingPromptAtom,
+  aiPromptAtom,
 } from "./utils/atom";
 import { useAtom } from "jotai";
 import Chatbox from "./components/Chatbox.jsx";
 // import { loadOBJModel } from "./utils/file.js";
 import { useLoader } from "@react-three/fiber";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import OpenAI from "openai";
+import { MeshStandardMaterial } from "three";
+import { randomColor } from "./utils/randomColor.ts";
+
+// main();
 
 const buildingData = {
   building: {
@@ -146,13 +153,31 @@ const buildingData = {
 const Scene = () => {
   const [isOrtho, _setIsOrtho] = useState(true);
   const objUrl =
-    "https://raw.githubusercontent.com/mrdoob/three.js/refs/heads/dev/examples/models/obj/tree.obj";
+    // "https://raw.githubusercontent.com/mrdoob/three.js/refs/heads/dev/examples/models/obj/tree.obj";
+    "./test.obj";
   const obj = useLoader(OBJLoader, objUrl);
+
+  const [material] = useState(
+    () =>
+      new MeshStandardMaterial({
+        color: 0xff0000,
+        roughness: 0.5,
+        metalness: 0.5,
+      })
+  );
 
   useEffect(() => {
     if (obj) {
-      obj.scale.set(10, 10, 10);
-      obj.position.set(0, 0, 0);
+      obj.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new MeshStandardMaterial({
+            // map: texture,
+            color: randomColor(),
+            roughness: 0.5,
+            metalness: 0.5,
+          });
+        }
+      });
     }
     console.log(obj);
   }, [obj]);
@@ -199,7 +224,16 @@ const Scene = () => {
         followCamera={true}
         infiniteGrid={true}
       />
-      {/* {obj && <primitive object={obj} />} */}
+      {obj && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <primitive object={obj} />
+          <meshStandardMaterial
+            color={0xff0000}
+            roughness={0.5}
+            metalness={0.5}
+          />
+        </mesh>
+      )}
     </>
   );
 };
@@ -210,6 +244,8 @@ function App() {
   const [scaleX, setScaleX] = useAtom(scaleXAtom);
   const [scaleY, setScaleY] = useAtom(scaleYAtom);
   const [scaleZ, setScaleZ] = useAtom(scaleZAtom);
+  const [buildingPrompt, setBuildingPrompt] = useAtom(buildingPromptAtom);
+  const [aiPrompt, setAiPrompt] = useAtom(aiPromptAtom);
 
   const handleScaleXChange = (event) => {
     const { name, value } = event.target;
@@ -327,11 +363,7 @@ function App() {
                   <Scene />
                 </TransformControlsProvider>
               </KeyboardControlsProvider>
-              {/* <Building
-                rotation={[-Math.PI / 2, 0, 0]}
-                scale={[0.2, 0.2, 0.2]}
-                buildingData={buildingData}
-              /> */}
+              <Building buildingData={buildingData} />
             </Canvas>
             {/* Chatbox Component */}
             <Chatbox />
@@ -426,6 +458,13 @@ function App() {
                   value={scaleZ || 0.3}
                   onChange={handleScaleZChange}
                 />
+                <button
+                  onClick={() => (
+                    console.log("do this"), main(aiPrompt, buildingPrompt)
+                  )}
+                >
+                  Generate Building
+                </button>
               </div>
             </div>
           </CommandBarProvider>
