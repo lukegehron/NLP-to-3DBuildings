@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NLP Building</title>
+  <script>
+    // Check if we have a redirect from 404.html
+    const params = new URLSearchParams(window.location.search);
+    const path = params.get("p");
+    if (path) {
+      // Remove the query parameter
+      window.history.replaceState(null, "", "." + path);
+    }
+  </script>
+  <script type="module" crossorigin src="./assets/index-zZZVrR0B.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DwfINPBV.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
