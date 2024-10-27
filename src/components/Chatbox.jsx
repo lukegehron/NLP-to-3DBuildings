@@ -58,12 +58,17 @@ const Chatbox = () => {
   return (
     <div style={styles.chatboxContainer}>
       <div style={styles.messagesContainer}>
-        {messages.map((msg) => (
-          <div key={msg.id} style={styles.message}>
-            <strong>{msg.author}: </strong>
-            <span>{msg.content}</span>
-          </div>
-        ))}
+        {messages ? (
+          messages.map((msg) => (
+            <div key={msg.id} style={styles.message}>
+              <strong>{msg.author}: </strong>
+              <span>{msg.content}</span>
+            </div>
+          ))
+        ) : (
+          // Optionally, display a placeholder when there are no messages
+          <div>No messages yet.</div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       <div style={styles.inputContainer}>
