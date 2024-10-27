@@ -30,11 +30,11 @@ export const Building = ({ color = "#cccccc", ...props }) => {
     if (!buildingData || !buildingData.building) return;
 
     const { geoJSON, floors } = buildingData.building;
-    console.log(buildingData.building);
+    // console.log(buildingData.building);
 
     // Process building shape
     const buildingCoords = processGeometry(geoJSON[0]);
-    console.log(buildingCoords);
+    // console.log(buildingCoords);
     const buildingShape = createShapeFromCoords(buildingCoords);
     setBuildingShape(buildingShape);
 
@@ -77,7 +77,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
 
   const createShapeFromCoords = (coords) => {
     const shape = new Shape();
-    console.log(coords);
+    // console.log(coords);
     shape.moveTo(coords[0][0], coords[0][1]);
     coords.slice(1).forEach((coord) => shape.lineTo(coord[0], coord[1]));
     return shape;

@@ -25,7 +25,7 @@ const Chatbox = () => {
     const messages = storage.get("messages");
     if (messages) {
       messages.push({
-        id: Date.now(),
+        id: Date.now().toString(), // Ensure ID is a string
         author: self.presence.name || "Anonymous",
         content: newMessage,
       });
@@ -34,6 +34,13 @@ const Chatbox = () => {
 
   const handleSend = () => {
     if (message.trim() === "") return;
+
+    if (message.startsWith("@ai")) {
+      console.log("is ai");
+      // Place any other actions you want to trigger here
+      // For example, you can call a function to process the message
+      // processAiMessage(message);
+    }
 
     sendMessage(message);
     setMessage("");
@@ -67,7 +74,7 @@ const Chatbox = () => {
           ))
         ) : (
           // Optionally, display a placeholder when there are no messages
-          <div>No messages yet.</div>
+          <div style={styles.noMessages}>No messages yet.</div>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -102,7 +109,6 @@ const styles = {
     right: "10px",
     width: "280px",
     maxHeight: "400px",
-    // backgroundColor: "rgba(255, 255, 255, 0.9)",
     backgroundColor: "#181c20",
     borderRadius: "8px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
@@ -120,6 +126,10 @@ const styles = {
     marginBottom: "5px",
     wordWrap: "break-word",
   },
+  noMessages: {
+    textAlign: "center",
+    color: "#888",
+  },
   inputContainer: {
     display: "flex",
     borderTop: "1px solid #ddd",
@@ -131,6 +141,8 @@ const styles = {
     outline: "none",
     fontSize: "14px",
     backgroundColor: "#535760",
+    color: "#fefefe",
+    fontFamily: "inherit",
   },
   sendButton: {
     padding: "10px 15px",
