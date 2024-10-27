@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useMutation, useStorage, useRoom } from "@liveblocks/react";
 import { LiveList } from "@liveblocks/client";
-import { buildingDataAtom } from "../utils/atom";
 
 const Chatbox = () => {
   const [message, setMessage] = useState("");
@@ -13,11 +12,6 @@ const Chatbox = () => {
 
   // Access the messages array from Liveblocks storage
   const messages = useStorage((root) => root.messages);
-
-  // Reference to keep track of the last processed message ID, initialized from localStorage
-  const lastProcessedMessageIdRef = useRef(
-    localStorage.getItem("lastProcessedMessageId")
-  );
 
   // Mutation to initialize messages if it doesn't exist
   const initMessages = useMutation(({ storage }) => {
@@ -41,6 +35,13 @@ const Chatbox = () => {
   const handleSend = () => {
     if (message.trim() === "") return;
 
+    if (message.startsWith("@ai")) {
+      console.log("is ai");
+      // Place any other actions you want to trigger here
+      // For example, you can call a function to process the message
+      // processAiMessage(message);
+    }
+
     sendMessage(message);
     setMessage("");
   };
@@ -54,52 +55,6 @@ const Chatbox = () => {
   // Scroll to the latest message when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Monitor messages for mentions of @ai
-  useEffect(() => {
-    if (!Array.isArray(messages)) {
-      return;
-    }
-
-    let lastProcessedIndex;
-
-    if (lastProcessedMessageIdRef.current) {
-      // Compare IDs as strings
-      lastProcessedIndex = messages.findIndex(
-        (msg) => msg.id.toString() === lastProcessedMessageIdRef.current
-      );
-    } else {
-      // No last processed message ID, set index to last message
-      lastProcessedIndex = messages.length - 1;
-      // Initialize lastProcessedMessageIdRef.current to the last message's ID
-      if (messages.length > 0) {
-        const lastMessageId = messages[messages.length - 1].id.toString();
-        lastProcessedMessageIdRef.current = lastMessageId;
-        localStorage.setItem("lastProcessedMessageId", lastMessageId);
-      }
-    }
-
-    // Get new messages since the last processed one
-    const newMessages = messages.slice(lastProcessedIndex + 1);
-
-    newMessages.forEach((msg) => {
-      if (msg.content.includes("@ai")) {
-        console.log("tagged");
-        console.log("buildingDataAtom: ", buildingDataAtom);
-        console.log("message: ", msg.content);
-        console.log("message ID: ", msg.id);
-        // Place any other actions you want to trigger here
-      }
-    });
-
-    // Update the last processed message ID
-    if (messages.length > 0) {
-      const newLastProcessedMessageId =
-        messages[messages.length - 1].id.toString();
-      lastProcessedMessageIdRef.current = newLastProcessedMessageId;
-      localStorage.setItem("lastProcessedMessageId", newLastProcessedMessageId);
-    }
   }, [messages]);
 
   // If storage is not loaded yet, show a loading state
@@ -119,7 +74,7 @@ const Chatbox = () => {
           ))
         ) : (
           // Optionally, display a placeholder when there are no messages
-          <div>No messages yet.</div>
+          <div style={styles.noMessages}>No messages yet.</div>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -154,7 +109,6 @@ const styles = {
     right: "10px",
     width: "280px",
     maxHeight: "400px",
-    // backgroundColor: "rgba(255, 255, 255, 0.9)",
     backgroundColor: "#181c20",
     borderRadius: "8px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
@@ -172,6 +126,10 @@ const styles = {
     marginBottom: "5px",
     wordWrap: "break-word",
   },
+  noMessages: {
+    textAlign: "center",
+    color: "#888",
+  },
   inputContainer: {
     display: "flex",
     borderTop: "1px solid #ddd",
@@ -183,6 +141,8 @@ const styles = {
     outline: "none",
     fontSize: "14px",
     backgroundColor: "#535760",
+    color: "#fefefe",
+    fontFamily: "inherit",
   },
   sendButton: {
     padding: "10px 15px",
