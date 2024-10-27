@@ -47,6 +47,8 @@ export const KeyboardControlsProvider = ({ children }) => {
             // const component = getComponentById(selectedId ?? "");
             if (selectedId) {
               console.log("Copy action triggered");
+              setCopiedComponent(components.get(selectedId));
+              console.log("Copied component:", components.get(selectedId));
             } else {
               console.log("Component not found for ID:", selectedId);
             }
@@ -57,6 +59,10 @@ export const KeyboardControlsProvider = ({ children }) => {
           if (e.ctrlKey || e.metaKey) {
             // Handle paste logic here
             // addComponent(JSON.parse(JSON.stringify(copiedComponent)));
+            addComponent({
+              type: copiedComponent.type,
+              props: components.get(selectedId).props,
+            });
             console.log("Paste action triggered");
           }
           break;
