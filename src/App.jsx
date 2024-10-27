@@ -224,7 +224,7 @@ const Scene = () => {
         followCamera={true}
         infiniteGrid={true}
       />
-      {obj && (
+      {/* {obj && (
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
           <primitive object={obj} />
           <meshStandardMaterial
@@ -233,7 +233,7 @@ const Scene = () => {
             metalness={0.5}
           />
         </mesh>
-      )}
+      )} */}
     </>
   );
 };
@@ -363,7 +363,7 @@ function App() {
                   <Scene />
                 </TransformControlsProvider>
               </KeyboardControlsProvider>
-              <Building buildingData={buildingData} />
+              {/* <Building buildingData={buildingData} /> */}
             </Canvas>
             {/* Chatbox Component */}
             <Chatbox />
