@@ -367,7 +367,7 @@ function App() {
             </Canvas>
             {/* Chatbox Component */}
             <Chatbox />
-            <div className="absolute top-0 left-0 w-[300px] bg-black/50 pointer-events-none">
+            <div className="building-parameters-box absolute top-0 left-0 w-[300px] bg-black/50 pointer-events-none">
               <div className="pointer-events-auto p-4">
                 <label htmlFor="floorSlider" className="block text-white mb-2">
                   Number of Floors:

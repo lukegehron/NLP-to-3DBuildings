@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap"); */
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -69,4 +70,12 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.building-parameters-box {
+  font-family: ui-monospace, SFMono-Regular, Menlo, "Roboto Mono", monospace;
+  font-size: 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  margin-left: 10px;
 }
