@@ -39,11 +39,14 @@ const Chatbox = () => {
       });
     }
   }, []);
+  let client;
 
-  const client = new OpenAI({
-    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true,
-  });
+  if (import.meta.env.VITE_OPENAI_API_KEY) {
+    client = new OpenAI({
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true,
+    });
+  }
 
   async function main(aiPrompt, buildingPrompt) {
     const chatCompletion = await client.chat.completions.create({
