@@ -48,6 +48,21 @@ const Chatbox = () => {
     });
   }
 
+  function wrapKeysInQuotes(obj) {
+    if (typeof obj !== "object" || obj === null) {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(wrapKeysInQuotes);
+    }
+
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[`"${key}"`] = wrapKeysInQuotes(obj[key]);
+      return acc;
+    }, {});
+  }
+
   async function main(aiPrompt, buildingPrompt) {
     const chatCompletion = await client.chat.completions.create({
       messages: [
@@ -63,14 +78,82 @@ const Chatbox = () => {
     console.log("Raw response:", responseContent);
 
     try {
-      // Attempt to parse the response as JSON
-      const data = JSON.parse(responseContent);
-      console.log("Parsed data:", data);
-      setBuildingData(data);
+      // Parse the response as an object
+      const parsedObj = JSON.parse(responseContent);
+      console.log("Parsed object:", parsedObj);
+
+      // Center and scale the building based on its GeoJSON coordinates
+      if (
+        parsedObj.building &&
+        parsedObj.building.geoJSON &&
+        parsedObj.building.geoJSON[0]
+      ) {
+        const coordinates =
+          parsedObj.building.geoJSON[0].geometry.coordinates[0];
+
+        // Calculate the bounding box
+        const bbox = coordinates.reduce(
+          (acc, coord) => {
+            return {
+              minX: Math.min(acc.minX, coord[0]),
+              minY: Math.min(acc.minY, coord[1]),
+              maxX: Math.max(acc.maxX, coord[0]),
+              maxY: Math.max(acc.maxY, coord[1]),
+            };
+          },
+          { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
+        );
+
+        // Calculate the center
+        const centerX = (bbox.minX + bbox.maxX) / 2;
+        const centerY = (bbox.minY + bbox.maxY) / 2;
+
+        // Calculate the scale factor
+        const width = bbox.maxX - bbox.minX;
+        const height = bbox.maxY - bbox.minY;
+        const scaleFactor = 20 / Math.max(width, height);
+
+        // Adjust coordinates to center and scale the building
+        const centeredAndScaledCoordinates = coordinates.map((coord) => [
+          (coord[0] - centerX) * scaleFactor,
+          (coord[1] - centerY) * scaleFactor,
+        ]);
+
+        // Update the GeoJSON with centered and scaled coordinates
+        parsedObj.building.geoJSON[0].geometry.coordinates[0] =
+          centeredAndScaledCoordinates;
+
+        // Also center and scale the floors if they exist
+        if (parsedObj.building.floors) {
+          parsedObj.building.floors.forEach((floor) => {
+            if (floor.geoJSON && floor.geoJSON[0]) {
+              floor.geoJSON[0].geometry.coordinates[0] =
+                floor.geoJSON[0].geometry.coordinates[0].map((coord) => [
+                  (coord[0] - centerX) * scaleFactor,
+                  (coord[1] - centerY) * scaleFactor,
+                ]);
+            }
+          });
+        }
+
+        // Update other relevant properties
+        if (parsedObj.building.baseDimensions) {
+          parsedObj.building.baseDimensions.length *= scaleFactor;
+          parsedObj.building.baseDimensions.width *= scaleFactor;
+        }
+        if (parsedObj.building.coreDimensions) {
+          parsedObj.building.coreDimensions.length *= scaleFactor;
+          parsedObj.building.coreDimensions.width *= scaleFactor;
+        }
+      }
+
+      console.log("Centered and scaled object:", parsedObj);
+
+      // Update the building data state
+      setBuildingData(parsedObj);
     } catch (error) {
-      console.error("Failed to parse response as JSON:", error);
+      console.error("Failed to parse or process response:", error);
       // Handle the error, maybe set an error state or use the raw string
-      // setBuildingData(responseContent);
     }
   }
 

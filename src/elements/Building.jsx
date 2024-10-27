@@ -77,13 +77,20 @@ export const Building = ({ color = "#cccccc", ...props }) => {
 
   const createShapeFromCoords = (coords) => {
     const shape = new Shape();
-    // console.log(coords);
+    console.log(coords);
     shape.moveTo(coords[0][0], coords[0][1]);
     coords.slice(1).forEach((coord) => shape.lineTo(coord[0], coord[1]));
     return shape;
   };
 
   if (!buildingShape) return null;
+  let floorHeight = 3;
+  if (!buildingData.building.hasOwnProperty("floorHeight")) {
+    console.log("No floor height found, using default of 3");
+    floorHeight = 3;
+  } else {
+    floorHeight = buildingData.building.floorHeight;
+  }
 
   return (
     <>
@@ -94,9 +101,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
             args={[
               buildingShape,
               {
-                depth:
-                  buildingData.building.floorHeight *
-                  buildingData.building.floors.length,
+                depth: floorHeight * buildingData.building.floors.length,
                 bevelEnabled: false,
               },
             ]}
@@ -106,10 +111,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
 
         {/* Floors */}
         {buildingData.building.floors.map((floor, index) => (
-          <group
-            key={floor.id}
-            position={[0, index * (buildingData.building.floorHeight || 3), 0]}
-          >
+          <group key={floor.id} position={[0, index * (floorHeight || 3), 0]}>
             <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
               <extrudeGeometry
                 args={[floorShapes[index], { depth: 0.1, bevelEnabled: false }]}
@@ -118,7 +120,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
             </mesh>
 
             {/* Spaces */}
-            {floor.spaces.map((space) => {
+            {/* {floor.spaces.map((space) => {
               const spaceCoords = processGeometry(space.geoJSON[0]);
               const spaceShape = createShapeFromCoords(spaceCoords);
 
@@ -132,7 +134,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
                     args={[
                       spaceShape,
                       {
-                        depth: buildingData.building.floorHeight - 0.2 || 2.9,
+                        depth: floorHeight - 0.2 || 2.9,
                         bevelEnabled: false,
                       },
                     ]}
@@ -144,7 +146,7 @@ export const Building = ({ color = "#cccccc", ...props }) => {
                   />
                 </mesh>
               );
-            })}
+            })} */}
           </group>
         ))}
       </group>
