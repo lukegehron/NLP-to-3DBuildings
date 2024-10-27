@@ -2,11 +2,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useMutation, useStorage, useRoom } from "@liveblocks/react";
 import { LiveList } from "@liveblocks/client";
-
+import { useAtom } from "jotai";
+import {
+  aiPromptAtom,
+  buildingPromptAtom,
+  buildingDataAtom,
+} from "../utils/atom";
+import OpenAI from "openai";
 const Chatbox = () => {
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef(null);
-
+  const [aiPrompt, setAiPrompt] = useAtom(aiPromptAtom);
+  const [buildingPrompt, setBuildingPrompt] = useAtom(buildingPromptAtom);
+  const [buildingData, setBuildingData] = useAtom(buildingDataAtom);
   // Access the room to perform storage updates
   const room = useRoom();
 
@@ -32,11 +40,46 @@ const Chatbox = () => {
     }
   }, []);
 
+  const client = new OpenAI({
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true,
+  });
+
+  async function main(aiPrompt, buildingPrompt) {
+    const chatCompletion = await client.chat.completions.create({
+      messages: [
+        {
+          role: "user",
+          content: aiPrompt + " " + buildingPrompt,
+        },
+      ],
+      model: "gpt-3.5-turbo",
+    });
+
+    const responseContent = chatCompletion.choices[0].message.content;
+    console.log("Raw response:", responseContent);
+
+    try {
+      // Attempt to parse the response as JSON
+      const data = JSON.parse(responseContent);
+      console.log("Parsed data:", data);
+      setBuildingData(data);
+    } catch (error) {
+      console.error("Failed to parse response as JSON:", error);
+      // Handle the error, maybe set an error state or use the raw string
+      // setBuildingData(responseContent);
+    }
+  }
+
   const handleSend = () => {
     if (message.trim() === "") return;
 
     if (message.startsWith("@ai")) {
-      console.log("is ai");
+      let myMessage = message.slice(4);
+      console.log(message.slice(4));
+      // console.log("is ai");
+      main(myMessage, buildingPrompt);
+
       // Place any other actions you want to trigger here
       // For example, you can call a function to process the message
       // processAiMessage(message);
